@@ -59,7 +59,8 @@ custom_layer_init(Application_Links *app){
       by pressing ctrl-p. Right now that looks like I'd have to change the
       actual implementation.
      Bind(word_complete_drop_down,    KeyCode_Space, KeyCode_Control); */
-  Bind(word_complete,    KeyCode_Space, KeyCode_Control);
+  Bind(word_complete, KeyCode_Space, KeyCode_Control);
+  Bind(redo, KeyCode_R, KeyCode_Control);
 }
 
 #endif //FCODER_DEFAULT_BINDINGS

@@ -1,3 +1,9 @@
+# My 4coder
+This is the 4cc version of my 4coder implementation. Right now It's my own 4coder config, and ways to set up my build environment. Eventually I will split off of the original fork, but will attempt to sync my changes in the `sync` branch.
+
+---
+# Original README
+
 # 4Coder Community
 
 Welcome to the 4coder community repository.

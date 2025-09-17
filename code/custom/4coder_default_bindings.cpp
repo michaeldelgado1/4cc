@@ -46,13 +46,20 @@ custom_layer_init(Application_Links *app){
 
   SelectMap(file_map_id);
   ParentMap(global_map_id);
-  // NOTE(mdelgado): I don't love that I have to do this on both
-  //  a global_map and file map. Since ctrl-q seems to be set in
-  //  the file_map my quit map will get consumed by the file version,
-  //  When we fully reset these bindings, I may not have to do this.
+  /* NOTE(mdelgado): I don't love that I have to do this on both
+      a global_map and file map. Since ctrl-q seems to be set in
+      the file_map my quit map will get consumed by the file version,
+      When we fully reset these bindings, I may not have to do this. */
   Bind(exit_4coder, KeyCode_Q, KeyCode_Control);
   // NOTE(mdelgado): Also pagued by having a global binding and file binding
   Bind(change_active_panel, KeyCode_L, KeyCode_Control);
+
+  /* TODO(mdelgado): Make the below commented out code work. I'd like to
+      be able to go to the next suggestion by pressing ctrl-n and previous
+      by pressing ctrl-p. Right now that looks like I'd have to change the
+      actual implementation.
+     Bind(word_complete_drop_down,    KeyCode_Space, KeyCode_Control); */
+  Bind(word_complete,    KeyCode_Space, KeyCode_Control);
 }
 
 #endif //FCODER_DEFAULT_BINDINGS

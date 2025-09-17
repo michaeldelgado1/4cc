@@ -4,13 +4,13 @@ This is the 4cc version of my 4coder implementation. Right now It's my own 4code
 ---
 # Original README
 
-# 4Coder Community
+## 4Coder Community
 
 Welcome to the 4coder community repository.
 
-# Building
+## Building
 
-## Windows
+### Windows
 1. Setup the MSVC toolchain in your environment, this can be done with the `code/custom/bin/setup_cl_x64.bat` script
 2. call the `package.bat` script from the code directory (this builds a distribution in the `distributions` directory with all the non-binary dependencies)
    1. `$ cd 4cc\code`
@@ -23,7 +23,7 @@ In addition to the parameter listed below, you can specify which backend to use 
 - `/DWIN32_OPENGL` (default) to use the OpenGL backend.
 - `/DWIN32_DX11` to use the Direct3D 11 backend.
 
-## Linux
+### Linux
 > tested on Ubuntu 22.04:
 
 1. Get required libraries (apt names):
@@ -36,7 +36,7 @@ In addition to the parameter listed below, you can specify which backend to use 
    1. `$ cd 4cc/code`
    2. `$ ./bin/build-linux.sh`
 
-## Mac 
+### Mac 
 
 > 4coder targets x86_64. If you are using a M1+ ARM CPU you need to prefix the build scripts commands with: `arch -arch x86_64`
 
@@ -48,7 +48,7 @@ In addition to the parameter listed below, you can specify which backend to use 
    1. `$ cd 4cc/code`
    2. `$ ./bin/build-mac.sh`
 
-### Older Macs, 10.15.7 Catalina
+#### Older Macs, 10.15.7 Catalina
 
 If you are using an older version of mac, such as 10.15.7 Catalina you need to install the realpath command:
 
@@ -56,7 +56,7 @@ If you are using an older version of mac, such as 10.15.7 Catalina you need to i
 2. macports names the `realpath` command `grealpath`, so make a symbolic link in order to use build-mac.sh:  
    `$ sudo ln -s /opt/local/bin/grealpath /opt/local/bin/realpath`
 
-## Build script parameter
+### Build script parameter
 
 The build script accepts a parameter (mutually exclusive):
 - `/DDEV_BUILD` or `/DDEV_BUILD_X86` (default value) : build without optimizations.
@@ -74,7 +74,7 @@ The build script accepts a parameter (mutually exclusive):
    Produces debug symbols.
    Defines `SHIP_MODE`, `DO_CRAZY_EXPENSIVE_ASSERTS` (on Windows) macros.
    
-## API generators
+### API generators
 
 4coder uses several small programs to generate some headers and source files. Those do not run automatically, you must build them and run them when needed (which shouldn't really happen).
 

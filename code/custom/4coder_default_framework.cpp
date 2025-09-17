@@ -10,7 +10,7 @@ point_stack_push(Application_Links *app, Buffer_ID buffer, i64 pos){
     Marker *marker = (Marker*)managed_object_get_pointer(app, object);
     marker->pos = pos;
     marker->lean_right = false;
-    
+
     i32 next_top = (point_stack.top + 1)%ArrayCount(point_stack.markers);
     if (next_top == point_stack.bot){
         Point_Stack_Slot *slot = &point_stack.markers[point_stack.bot];
@@ -18,7 +18,7 @@ point_stack_push(Application_Links *app, Buffer_ID buffer, i64 pos){
         block_zero_struct(slot);
         point_stack.bot = (point_stack.bot + 1)%ArrayCount(point_stack.markers);
     }
-    
+
     Point_Stack_Slot *slot = &point_stack.markers[point_stack.top];
     slot->buffer = buffer;
     slot->object = object;
@@ -294,24 +294,24 @@ function void
 view_buffer_set(Application_Links *app, Buffer_ID *buffers, i64 *positions, i32 count){
     if (count > 0){
         Scratch_Block scratch(app);
-        
+
         struct View_Node{
             View_Node *next;
             View_ID view_id;
         };
-        
+
         View_ID active_view_id = get_active_view(app, Access_Always);
         View_ID first_view_id = active_view_id;
         if (view_get_is_passive(app, active_view_id)){
             first_view_id = get_next_view_looped_primary_panels(app, active_view_id, Access_Always);
         }
-        
+
         View_ID view_id = first_view_id;
-        
+
         View_Node *primary_view_first = 0;
         View_Node *primary_view_last = 0;
         i32 available_view_count = 0;
-        
+
         primary_view_first = primary_view_last = push_array(scratch, View_Node, 1);
         primary_view_last->next = 0;
         primary_view_last->view_id = view_id;
@@ -328,7 +328,7 @@ view_buffer_set(Application_Links *app, Buffer_ID *buffers, i64 *positions, i32 
             primary_view_last = node;
             available_view_count += 1;
         }
-        
+
         i32 buffer_set_count = clamp_top(count, available_view_count);
         View_Node *node = primary_view_first;
         for (i32 i = 0; i < buffer_set_count; i += 1, node = node->next){
@@ -398,9 +398,9 @@ create_or_switch_to_buffer_and_clear_by_name(Application_Links *app, String_Cons
     Buffer_ID search_buffer = get_buffer_by_name(app, name_string, Access_Always);
     if (search_buffer != 0){
         buffer_set_setting(app, search_buffer, BufferSetting_ReadOnly, true);
-        
+
         View_ID target_view = default_target_view;
-        
+
         View_ID view_with_buffer_already_open = get_first_view_with_buffer(app, search_buffer);
         if (view_with_buffer_already_open != 0){
             target_view = view_with_buffer_already_open;
@@ -412,7 +412,7 @@ create_or_switch_to_buffer_and_clear_by_name(Application_Links *app, String_Cons
             view_set_buffer(app, target_view, search_buffer, 0);
         }
         view_set_active(app, target_view);
-        
+
         clear_buffer(app, search_buffer);
         buffer_send_end_signal(app, search_buffer);
     }
@@ -426,7 +426,7 @@ create_or_switch_to_buffer_and_clear_by_name(Application_Links *app, String_Cons
         view_set_buffer(app, default_target_view, search_buffer, 0);
         view_set_active(app, default_target_view);
     }
-    
+
     return(search_buffer);
 }
 
@@ -537,11 +537,11 @@ CUSTOM_DOC("Loads all the theme files in the default theme folder.")
 {
     String_Const_u8 fcoder_extension = string_u8_litexpr(".4coder");
     save_all_dirty_buffers_with_postfix(app, fcoder_extension);
-    
+
     Scratch_Block scratch(app);
     String8List list = {};
     def_search_normal_load_list(scratch, &list);
-    
+
     for (String8Node *node = list.first;
          node != 0;
          node = node->next){
@@ -582,14 +582,14 @@ function void
 setup_essential_mapping(Mapping *mapping, i64 global_id, i64 file_id, i64 code_id){
     MappingScope();
     SelectMapping(mapping);
-    
+
     SelectMap(global_id);
     BindCore(default_startup, CoreCode_Startup);
     BindCore(default_try_exit, CoreCode_TryExit);
     BindCore(clipboard_record_clip, CoreCode_NewClipboardContents);
     BindMouseWheel(mouse_wheel_scroll);
     BindMouseWheel(mouse_wheel_change_face_size, KeyCode_Control);
-    
+
     SelectMap(file_id);
     ParentMap(global_id);
     BindTextInput(write_text_input);
@@ -597,7 +597,7 @@ setup_essential_mapping(Mapping *mapping, i64 global_id, i64 file_id, i64 code_i
     BindMouseRelease(click_set_cursor, MouseCode_Left);
     BindCore(click_set_cursor_and_mark, CoreCode_ClickActivateView);
     BindMouseMove(click_set_cursor_if_lbutton);
-    
+
     SelectMap(code_id);
     ParentMap(file_id);
     BindTextInput(write_text_and_auto_indent);
@@ -619,33 +619,35 @@ default_4coder_initialize(Application_Links *app, String_Const_u8_Array file_nam
 "\n"
     print_message(app, string_u8_litexpr(M));
 #undef M
-    
+
     Scratch_Block scratch(app);
-    
+
     load_config_and_apply(app, &global_config_arena, override_font_size, override_hinting);
-    
+
+#if 0 // TODO: Figure out a better way to disable bindings config rather than just #if
     String_Const_u8 bindings_file_name = string_u8_litexpr("bindings.4coder");
     String_Const_u8 mapping = def_get_config_string(scratch, vars_save_string_lit("mapping"));
-    
+
     if (string_match(mapping, string_u8_litexpr("mac-default"))){
         bindings_file_name = string_u8_litexpr("mac-bindings.4coder");
     }
     else if (OS_MAC && string_match(mapping, string_u8_litexpr("choose"))){
         bindings_file_name = string_u8_litexpr("mac-bindings.4coder");
     }
-    
+
     // TODO(allen): cleanup
     String_ID global_map_id = vars_save_string_lit("keys_global");
     String_ID file_map_id = vars_save_string_lit("keys_file");
     String_ID code_map_id = vars_save_string_lit("keys_code");
-    
+
     if (dynamic_binding_load_from_file(app, &framework_mapping, bindings_file_name)){
         setup_essential_mapping(&framework_mapping, global_map_id, file_map_id, code_map_id);
     }
     else{
         setup_built_in_mapping(app, mapping, &framework_mapping, global_map_id, file_map_id, code_map_id);
     }
-    
+#endif
+
     // open command line files
     String_Const_u8 hot_directory = push_hot_directory(app, scratch);
     for (i32 i = 0; i < file_names.count; i += 1){
@@ -687,17 +689,17 @@ default_4coder_side_by_side_panels(Application_Links *app,
                                    Buffer_Identifier left, Buffer_Identifier right){
     Buffer_ID left_id = buffer_identifier_to_id(app, left);
     Buffer_ID right_id = buffer_identifier_to_id(app, right);
-    
+
     // Left Panel
     View_ID view = get_active_view(app, Access_Always);
     new_view_settings(app, view);
     view_set_buffer(app, view, left_id, 0);
-    
+
     // Right Panel
     open_panel_vsplit(app);
     View_ID right_view = get_active_view(app, Access_Always);
     view_set_buffer(app, right_view, right_id, 0);
-    
+
     // Restore Active to Left
     view_set_active(app, view);
 }
@@ -756,7 +758,7 @@ default_4coder_one_panel(Application_Links *app){
 function void
 buffer_modified_set_init(void){
     Buffer_Modified_Set *set = &global_buffer_modified_set;
-    
+
     block_zero_struct(set);
     Base_Allocator *allocator = get_base_allocator_system();
     set->arena = make_arena(allocator);
@@ -778,7 +780,7 @@ buffer_modified_set__alloc_node(Buffer_Modified_Set *set){
 function void
 buffer_mark_as_modified(Buffer_ID buffer){
     Buffer_Modified_Set *set = &global_buffer_modified_set;
-    
+
     Table_Lookup lookup = table_lookup(&set->id_to_node, (u64)buffer);
     if (!lookup.found_match){
         Buffer_Modified_Node *node = buffer_modified_set__alloc_node(set);
@@ -791,7 +793,7 @@ buffer_mark_as_modified(Buffer_ID buffer){
 function void
 buffer_unmark_as_modified(Buffer_ID buffer){
     Buffer_Modified_Set *set = &global_buffer_modified_set;
-    
+
     Table_Lookup lookup = table_lookup(&set->id_to_node, (u64)buffer);
     if (lookup.found_match){
         u64 val = 0;
@@ -806,7 +808,7 @@ buffer_unmark_as_modified(Buffer_ID buffer){
 function void
 buffer_modified_set_clear(void){
     Buffer_Modified_Set *set = &global_buffer_modified_set;
-    
+
     table_clear(&set->id_to_node);
     if (set->last != 0){
         set->last->next = set->free;
@@ -1034,13 +1036,13 @@ default_framework_init(Application_Links *app){
 function void
 default_input_handler_init(Application_Links *app, Arena *arena){
     Thread_Context *tctx = get_thread_context(app);
-    
+
     View_ID view = get_this_ctx_view(app, Access_Always);
     String_Const_u8 name = push_u8_stringf(arena, "view %d", view);
-    
+
     Profile_Global_List *list = get_core_profile_list(app);
     ProfileThreadName(tctx, list, name);
-    
+
     View_Context ctx = view_current_context(app, view);
     ctx.mapping = &framework_mapping;
     ctx.map_id = vars_save_string_lit("keys_global");

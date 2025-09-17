@@ -44,7 +44,7 @@ This is a list of bugs or features that need addressing.
 	- Move View Left/Right/Up/Down ctrl-j ctrl-k ctrl-h ctrl-l
 	- Split View Vertical/Horizontal <leader>wv <leader>wh
 	- Close Current View <leader>wc
-    - Go to previous file ctrl-^
+    - Go to previous file ctrl-6 (I thought of it as ctrl-^ for a long time)
 - Toggle Terminal with current project as cwd
 	- Create new terminal if one doesn't exist
 	- Open existing terminal if one does exist

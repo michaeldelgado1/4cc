@@ -41,6 +41,8 @@ custom_layer_init(Application_Links *app){
 
   SelectMap(global_map_id);
   Bind(exit_4coder, KeyCode_Q, KeyCode_Control);
+  Bind(change_active_panel, KeyCode_L, KeyCode_Control);
+  Bind(change_active_panel_backwards, KeyCode_H, KeyCode_Control);
 
   SelectMap(file_map_id);
   ParentMap(global_map_id);
@@ -49,6 +51,8 @@ custom_layer_init(Application_Links *app){
   //  the file_map my quit map will get consumed by the file version,
   //  When we fully reset these bindings, I may not have to do this.
   Bind(exit_4coder, KeyCode_Q, KeyCode_Control);
+  // NOTE(mdelgado): Also pagued by having a global binding and file binding
+  Bind(change_active_panel, KeyCode_L, KeyCode_Control);
 }
 
 #endif //FCODER_DEFAULT_BINDINGS

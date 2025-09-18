@@ -63,6 +63,12 @@ CUSTOM_COMMAND_SIG(edit_to_end_of_line) {
   go_to_insert_mode(app);
 }
 
+
+CUSTOM_COMMAND_SIG(edit_entire_line) {
+  seek_beginning_of_line(app);
+  edit_to_end_of_line(app);
+}
+
 // NOTE(mdelgado): Hooks
 BUFFER_HOOK_SIG(custom_begin_buffer){
   go_to_normal_mode(app);
@@ -142,6 +148,7 @@ custom_layer_init(Application_Links *app){
   Bind(delete_char, KeyCode_X);
   Bind(delete_to_end_of_line, KeyCode_D, KeyCode_Shift);
   Bind(edit_to_end_of_line, KeyCode_C, KeyCode_Shift);
+  Bind(edit_entire_line, KeyCode_S, KeyCode_Shift);
   Bind(move_left_whitespace_boundary, KeyCode_B);
   // NOTE(mdelgado): Both of these are technically wrong
   //  The both move forward to the white space, but I'd

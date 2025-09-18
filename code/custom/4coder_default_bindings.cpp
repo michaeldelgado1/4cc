@@ -220,6 +220,8 @@ custom_layer_init(Application_Links *app){
   Bind(normal_move_up, KeyCode_K);
   Bind(normal_move_left, KeyCode_H);
   Bind(normal_move_right, KeyCode_L);
+  // TODO(mdelgado): This doesn't work with bindings that do more
+  //  than one thing. For example change_range_case
   Bind(undo, KeyCode_U);
   Bind(redo, KeyCode_R, KeyCode_Control);
   Bind(search, KeyCode_ForwardSlash);

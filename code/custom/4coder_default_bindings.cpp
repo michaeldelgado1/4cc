@@ -50,6 +50,10 @@ CUSTOM_COMMAND_SIG(go_to_visual_mode) {
   active_color_table.arrays[ defcolor_at_cursor ].vals[ 0 ] = 0xff0000ff;
 }
 
+BUFFER_HOOK_SIG(custom_begin_buffer){
+  go_to_normal_mode(app);
+  return 0;
+}
 // TODO(mdelgado): I'd like to avoid updating this function,
 //  I don't think this system gives me that ability to define
 //  this in my 4coder_custom.cpp file
@@ -62,6 +66,10 @@ custom_layer_init(Application_Links *app){
 
   // NOTE(allen): default hooks and command maps
   set_all_default_hooks(app);
+  // TODO(mdelgado): This almost worked. Something is setting the
+  //  map back to file_map_id, and no longer treats buffers as code
+  // set_custom_hook(app, HookID_BeginBuffer, custom_begin_buffer);
+
   mapping_init(tctx, &framework_mapping);
   String_ID global_map_id = vars_save_string_lit("keys_global");
   String_ID file_map_id = vars_save_string_lit("keys_file");

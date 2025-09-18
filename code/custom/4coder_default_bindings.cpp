@@ -58,7 +58,12 @@ CUSTOM_COMMAND_SIG(delete_to_end_of_line) {
   delete_range(app);
 }
 
+CUSTOM_COMMAND_SIG(edit_to_end_of_line) {
+  delete_to_end_of_line(app);
+  go_to_insert_mode(app);
+}
 
+// NOTE(mdelgado): Hooks
 BUFFER_HOOK_SIG(custom_begin_buffer){
   go_to_normal_mode(app);
   return 0;
@@ -136,6 +141,7 @@ custom_layer_init(Application_Links *app){
   Bind(reverse_search, KeyCode_ForwardSlash, KeyCode_Shift);
   Bind(delete_char, KeyCode_X);
   Bind(delete_to_end_of_line, KeyCode_D, KeyCode_Shift);
+  Bind(edit_to_end_of_line, KeyCode_C, KeyCode_Shift);
   Bind(move_left_whitespace_boundary, KeyCode_B);
   // NOTE(mdelgado): Both of these are technically wrong
   //  The both move forward to the white space, but I'd

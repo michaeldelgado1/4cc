@@ -83,19 +83,19 @@ custom_layer_init(Application_Links *app){
 #if OS_MAC
     setup_mac_mapping(&framework_mapping, global_map_id, file_map_id, code_map_id);
 #else
-    setup_default_mapping(&framework_mapping, global_map_id, file_map_id, code_map_id);
+    setup_default_global_mapping(&framework_mapping, global_map_id);
 #endif
   setup_essential_mapping(&framework_mapping, global_map_id, file_map_id, code_map_id);
 
   MappingScope();
   SelectMapping(&framework_mapping);
 
-
   SelectMap(mapid_shared);
   // NOTE(mdelgado): This is needed for 4coder to properly start.
   BindCore(default_startup, CoreCode_Startup);
   // NOTE(mdelgado): This is needed for 4coder to exit without being forced.
   BindCore(default_try_exit, CoreCode_TryExit);
+
   Bind(go_to_normal_mode, KeyCode_Escape);
   Bind(change_active_panel, KeyCode_L, KeyCode_Control);
   Bind(change_active_panel_backwards, KeyCode_H, KeyCode_Control);
@@ -143,7 +143,7 @@ custom_layer_init(Application_Links *app){
   Bind(seek_end_of_line, KeyCode_4, KeyCode_Shift);
   Bind(search, KeyCode_ForwardSlash);
   Bind(reverse_search, KeyCode_ForwardSlash, KeyCode_Shift);
-  // TODO: Needs to uppercase/lowercase and only do one char
+  // TODO(mdelgado): Needs to uppercase/lowercase and only do one char
   // Bind(to_uppercase, KeyCode_Tick, KeyCode_Shift);
 
   SelectMap(mapid_insert);
@@ -154,8 +154,6 @@ custom_layer_init(Application_Links *app){
   // NOTE(mdelgado): This is supposed to start files in normal mode
   SelectMap(file_map_id);
   ParentMap(mapid_normal);
-  // NOTE(mdelgado): If I don't do this, I can't close on startup
-  Bind(exit_4coder, KeyCode_Q, KeyCode_Control);
 
   SelectMap(code_map_id);
   ParentMap(mapid_normal);

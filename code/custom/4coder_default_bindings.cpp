@@ -84,7 +84,9 @@ custom_layer_init(Application_Links *app){
 
 
   SelectMap(mapid_shared);
+  // NOTE(mdelgado): This is needed for 4coder to properly start.
   BindCore(default_startup, CoreCode_Startup);
+  // NOTE(mdelgado): This is needed for 4coder to exit without being forced.
   BindCore(default_try_exit, CoreCode_TryExit);
   Bind(go_to_normal_mode, KeyCode_Escape);
   Bind(change_active_panel, KeyCode_L, KeyCode_Control);
@@ -120,6 +122,21 @@ custom_layer_init(Application_Links *app){
   Bind(move_right_whitespace_boundary, KeyCode_W);
   Bind(move_right_whitespace_boundary, KeyCode_E);
 
+  // TODO(mdelgado): This doesn't work. We should see
+  //  if we can figure out a way to make it work.
+  // Bind(delete_line, KeyCode_D, KeyCode_D);
+  // TODO(mdelgado): Can't do gg or goto_beginning_of_file
+  Bind(goto_end_of_file, KeyCode_G, KeyCode_Shift);
+  // NOTE(mdelgado): Technically the ^ command, but I
+  //  Actually can't navigate past an indent
+  Bind(seek_beginning_of_line, KeyCode_0);
+  // NOTE(mdelgado): Can't bind the Caret Symbol, but this works
+  Bind(seek_beginning_of_line, KeyCode_6, KeyCode_Shift);
+  Bind(seek_end_of_line, KeyCode_4, KeyCode_Shift);
+  Bind(search, KeyCode_ForwardSlash);
+  Bind(reverse_search, KeyCode_ForwardSlash, KeyCode_Shift);
+  // TODO: Needs to uppercase/lowercase and only do one char
+  // Bind(to_uppercase, KeyCode_Tick, KeyCode_Shift);
 
   SelectMap(mapid_insert);
   ParentMap(mapid_shared);
@@ -129,6 +146,8 @@ custom_layer_init(Application_Links *app){
   // NOTE(mdelgado): This is supposed to start files in normal mode
   SelectMap(file_map_id);
   ParentMap(mapid_normal);
+  // NOTE(mdelgado): If I don't do this, I can't close on startup
+  Bind(exit_4coder, KeyCode_Q, KeyCode_Control);
 
   SelectMap(code_map_id);
   ParentMap(mapid_normal);

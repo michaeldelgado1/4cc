@@ -9,7 +9,7 @@ This is a list of bugs or features that need addressing.
 
 ## Features
 - Light vim keybindings
-	- jkhl movement
+	[X] jkhl movement
     - Move below line to this line J
 	- yank Y yy yiw yaw yt yf
 	- Mark setting like visual mode
@@ -17,7 +17,7 @@ This is a list of bugs or features that need addressing.
 		- Move cursor to expand selection
 		- Commands use "selection" as a target
 	- delete D dd diw daw dt df
-	- Undo/Redo (u, ctrl-r)
+	[X] Undo/Redo (u, ctrl-r)
 	- Indenting >> <<
 	- Replace r C cc ciw caw ct cf s S
 	- Basic commands
@@ -26,7 +26,8 @@ This is a list of bugs or features that need addressing.
 		- Substitute :s :%s
 		- Go to line # :100 (Go to line 100)
 	- Go to top/bottom of file gg G
-	- Move to Next Empty Line { }
+        - Only implemented G or goto_end_of_file
+	[X] Move to Next Empty Line ctrl-{ ctrl-}
 	- Leader key <space>
 	- Open File browser <leader>of
 	- Fuzzy find files <leader><leader>
@@ -42,6 +43,7 @@ This is a list of bugs or features that need addressing.
 		- Next/Previous Search Instance n N
 	- Lines between mark and cursor highlighted in Visual Mode
 	- Move View Left/Right/Up/Down ctrl-j ctrl-k ctrl-h ctrl-l
+        - Almost Done. I can move left and right
 	- Split View Vertical/Horizontal <leader>wv <leader>wh
 	- Close Current View <leader>wc
     - Go to previous file ctrl-6 (I thought of it as ctrl-^ for a long time)

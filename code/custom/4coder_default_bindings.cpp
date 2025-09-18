@@ -27,6 +27,7 @@ set_current_mapid(Application_Links *app, Command_Map_ID mapid) {
   *map_id_ptr = mapid;
 }
 
+// NOTE(mdelgado): Switch Modes
 CUSTOM_COMMAND_SIG(go_to_normal_mode) {
   set_current_mapid(app, mapid_normal);
 
@@ -49,6 +50,14 @@ CUSTOM_COMMAND_SIG(go_to_visual_mode) {
   active_color_table.arrays[ defcolor_cursor ].vals[ 0 ] = 0xffffff00;
   active_color_table.arrays[ defcolor_at_cursor ].vals[ 0 ] = 0xff0000ff;
 }
+
+// NOTE(mdelgado): Editing
+CUSTOM_COMMAND_SIG(delete_to_end_of_line) {
+  set_mark(app);
+  seek_end_of_line(app);
+  delete_range(app);
+}
+
 
 BUFFER_HOOK_SIG(custom_begin_buffer){
   go_to_normal_mode(app);
@@ -126,6 +135,7 @@ custom_layer_init(Application_Links *app){
   Bind(search, KeyCode_ForwardSlash);
   Bind(reverse_search, KeyCode_ForwardSlash, KeyCode_Shift);
   Bind(delete_char, KeyCode_X);
+  Bind(delete_to_end_of_line, KeyCode_D, KeyCode_Shift);
   Bind(move_left_whitespace_boundary, KeyCode_B);
   // NOTE(mdelgado): Both of these are technically wrong
   //  The both move forward to the white space, but I'd

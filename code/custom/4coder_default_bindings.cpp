@@ -92,6 +92,8 @@ custom_layer_init(Application_Links *app){
   Bind(exit_4coder, KeyCode_Q, KeyCode_Control);
   Bind(interactive_open_or_new, KeyCode_O, KeyCode_Control);
   Bind(quick_swap_buffer, KeyCode_6, KeyCode_Control);
+  Bind(move_down_to_blank_line_end, KeyCode_RightBracket, KeyCode_Control);
+  Bind(move_up_to_blank_line_end, KeyCode_LeftBracket, KeyCode_Control);
   /*
    * TODO(mdelgado): Make the below commented out code work. I'd like to
    *  be able to go to the next suggestion by pressing ctrl-n and previous
@@ -111,12 +113,20 @@ custom_layer_init(Application_Links *app){
   Bind(move_right, KeyCode_L);
   Bind(go_to_insert_mode, KeyCode_I);
   Bind(delete_char, KeyCode_X);
+  Bind(move_left_whitespace_boundary, KeyCode_B);
+  // NOTE(mdelgado): Both of these are technically wrong
+  //  The both move forward to the white space, but I'd
+  //  rather they move to the last char or first char
+  Bind(move_right_whitespace_boundary, KeyCode_W);
+  Bind(move_right_whitespace_boundary, KeyCode_E);
+
 
   SelectMap(mapid_insert);
   ParentMap(mapid_shared);
   BindTextInput(write_text_and_auto_indent);
   Bind(delete_char, KeyCode_Delete);
 
+  // NOTE(mdelgado): This is supposed to start files in normal mode
   SelectMap(file_map_id);
   ParentMap(mapid_normal);
 

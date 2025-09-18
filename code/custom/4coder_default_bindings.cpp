@@ -27,6 +27,27 @@ set_current_mapid(Application_Links *app, Command_Map_ID mapid) {
   *map_id_ptr = mapid;
 }
 
+Range_i64
+view_get_highlight_range(Application_Links *app, View_ID view) {
+  Range_i64 result = {};
+  i64 pos = view_get_cursor_pos(app, view);
+  i64 mark = view_get_mark_pos(app, view);
+  result.start = Min(pos, mark);
+  result.end = Max(pos, mark);
+  return result;
+}
+
+String_Const_u8
+get_selected_chars(Application_Links *app) {
+  View_ID view = get_active_view(app, 0);
+  Buffer_ID buffer = view_get_buffer(app, view, 0);
+
+  Range_i64 range = view_get_highlight_range(app, view);
+  Scratch_Block scratch(app);
+  String_Const_u8 result = push_buffer_range(app, scratch, buffer, range);
+  return result;
+}
+
 // NOTE(mdelgado): Switch Modes
 CUSTOM_COMMAND_SIG(go_to_normal_mode) {
   set_current_mapid(app, mapid_normal);
@@ -67,6 +88,36 @@ CUSTOM_COMMAND_SIG(edit_to_end_of_line) {
 CUSTOM_COMMAND_SIG(edit_entire_line) {
   seek_beginning_of_line(app);
   edit_to_end_of_line(app);
+}
+
+CUSTOM_COMMAND_SIG(change_range_case) {
+  View_ID view = get_active_view(app, 0);
+  i64 pos = view_get_cursor_pos(app, view);
+  i64 mark = view_get_mark_pos(app, view);
+  if (pos == mark) {
+    move_right(app);
+    pos++;
+  }
+
+  String_Const_u8 selected = get_selected_chars(app);
+
+  for(int i = 0; i < selected.size; i++) {
+    u8 curChar = selected.str[i];
+    u8 updatedChar;
+    if (character_is_upper(curChar)) {
+      updatedChar = character_to_lower(curChar);
+    } else {
+      updatedChar = character_to_upper(curChar);
+    }
+
+    selected.str[i] = updatedChar;
+  }
+
+  write_string(app, selected);
+
+  view_set_cursor_and_preferred_x(app, view, seek_pos(pos));
+  delete_range(app);
+  view_set_cursor_and_preferred_x(app, view, seek_pos(pos));
 }
 
 // NOTE(mdelgado): Hooks
@@ -168,7 +219,7 @@ custom_layer_init(Application_Links *app){
   Bind(seek_beginning_of_line, KeyCode_6, KeyCode_Shift);
   Bind(seek_end_of_line, KeyCode_4, KeyCode_Shift);
   // TODO(mdelgado): Needs to uppercase/lowercase and only do one char
-  // Bind(to_uppercase, KeyCode_Tick, KeyCode_Shift);
+  Bind(change_range_case, KeyCode_Tick, KeyCode_Shift);
 
   SelectMap(mapid_insert);
   ParentMap(mapid_shared);

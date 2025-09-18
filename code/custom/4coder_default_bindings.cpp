@@ -90,6 +90,26 @@ CUSTOM_COMMAND_SIG(edit_entire_line) {
   edit_to_end_of_line(app);
 }
 
+CUSTOM_COMMAND_SIG(normal_move_up) {
+  move_up(app);
+  set_mark(app);
+}
+
+CUSTOM_COMMAND_SIG(normal_move_down) {
+  move_down(app);
+  set_mark(app);
+}
+
+CUSTOM_COMMAND_SIG(normal_move_left) {
+  move_left(app);
+  set_mark(app);
+}
+
+CUSTOM_COMMAND_SIG(normal_move_right) {
+  move_right(app);
+  set_mark(app);
+}
+
 CUSTOM_COMMAND_SIG(change_range_case) {
   View_ID view = get_active_view(app, 0);
   i64 pos = view_get_cursor_pos(app, view);
@@ -97,6 +117,11 @@ CUSTOM_COMMAND_SIG(change_range_case) {
   if (pos == mark) {
     move_right(app);
     pos++;
+  } else if (mark > pos) {
+    cursor_mark_swap(app);
+    i64 newPos = mark;
+    mark = pos;
+    pos = newPos;
   }
 
   String_Const_u8 selected = get_selected_chars(app);
@@ -116,8 +141,11 @@ CUSTOM_COMMAND_SIG(change_range_case) {
   write_string(app, selected);
 
   view_set_cursor_and_preferred_x(app, view, seek_pos(pos));
+  // TODO(mdelgado): This is broken. It only works if the selection
+  //  has a greater pos than the mark.
   delete_range(app);
   view_set_cursor_and_preferred_x(app, view, seek_pos(pos));
+  set_mark(app);
 }
 
 // NOTE(mdelgado): Hooks
@@ -188,10 +216,10 @@ custom_layer_init(Application_Links *app){
   SelectMap(mapid_normal);
   ParentMap(mapid_shared);
   Bind(go_to_insert_mode, KeyCode_I);
-  Bind(move_down, KeyCode_J);
-  Bind(move_up, KeyCode_K);
-  Bind(move_left, KeyCode_H);
-  Bind(move_right, KeyCode_L);
+  Bind(normal_move_down, KeyCode_J);
+  Bind(normal_move_up, KeyCode_K);
+  Bind(normal_move_left, KeyCode_H);
+  Bind(normal_move_right, KeyCode_L);
   Bind(undo, KeyCode_U);
   Bind(redo, KeyCode_R, KeyCode_Control);
   Bind(search, KeyCode_ForwardSlash);

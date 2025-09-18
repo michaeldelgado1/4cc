@@ -46,7 +46,7 @@ This is a list of bugs or features that need addressing.
         - Almost Done. I can move left and right
 	- Split View Vertical/Horizontal <leader>wv <leader>wh
 	- Close Current View <leader>wc
-    - Go to previous file ctrl-6 (I thought of it as ctrl-^ for a long time)
+    [X] Go to previous file ctrl-6 (I thought of it as ctrl-^ for a long time)
 - Toggle Terminal with current project as cwd
 	- Create new terminal if one doesn't exist
 	- Open existing terminal if one does exist

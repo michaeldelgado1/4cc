@@ -104,6 +104,7 @@ custom_layer_init(Application_Links *app){
   Bind(quick_swap_buffer, KeyCode_6, KeyCode_Control);
   Bind(move_down_to_blank_line_end, KeyCode_RightBracket, KeyCode_Control);
   Bind(move_up_to_blank_line_end, KeyCode_LeftBracket, KeyCode_Control);
+  Bind(command_lister, KeyCode_X, KeyCode_Alt);
   /*
    * TODO(mdelgado): Make the below commented out code work. I'd like to
    *  be able to go to the next suggestion by pressing ctrl-n and previous
@@ -115,13 +116,15 @@ custom_layer_init(Application_Links *app){
 
   SelectMap(mapid_normal);
   ParentMap(mapid_shared);
-  Bind(redo, KeyCode_R, KeyCode_Control);
-  Bind(undo, KeyCode_U);
+  Bind(go_to_insert_mode, KeyCode_I);
   Bind(move_down, KeyCode_J);
   Bind(move_up, KeyCode_K);
   Bind(move_left, KeyCode_H);
   Bind(move_right, KeyCode_L);
-  Bind(go_to_insert_mode, KeyCode_I);
+  Bind(undo, KeyCode_U);
+  Bind(redo, KeyCode_R, KeyCode_Control);
+  Bind(search, KeyCode_ForwardSlash);
+  Bind(reverse_search, KeyCode_ForwardSlash, KeyCode_Shift);
   Bind(delete_char, KeyCode_X);
   Bind(move_left_whitespace_boundary, KeyCode_B);
   // NOTE(mdelgado): Both of these are technically wrong
@@ -141,28 +144,38 @@ custom_layer_init(Application_Links *app){
   // NOTE(mdelgado): Can't bind the Caret Symbol, but this works
   Bind(seek_beginning_of_line, KeyCode_6, KeyCode_Shift);
   Bind(seek_end_of_line, KeyCode_4, KeyCode_Shift);
-  Bind(search, KeyCode_ForwardSlash);
-  Bind(reverse_search, KeyCode_ForwardSlash, KeyCode_Shift);
   // TODO(mdelgado): Needs to uppercase/lowercase and only do one char
   // Bind(to_uppercase, KeyCode_Tick, KeyCode_Shift);
 
   SelectMap(mapid_insert);
   ParentMap(mapid_shared);
+  // NOTE(mdelgado): Some semi basic editor commands for insert mode
   BindTextInput(write_text_and_auto_indent);
   Bind(delete_char, KeyCode_Delete);
+  Bind(backspace_char, KeyCode_Backspace);
+  Bind(move_up, KeyCode_Up);
+  Bind(move_down, KeyCode_Down);
+  Bind(move_left, KeyCode_Left);
+  Bind(move_right, KeyCode_Right);
+  Bind(seek_end_of_line, KeyCode_End);
+  Bind(seek_beginning_of_line, KeyCode_Home);
+  Bind(page_up, KeyCode_PageUp);
+  Bind(page_down, KeyCode_PageDown);
+  Bind(copy, KeyCode_C, KeyCode_Control);
+  Bind(cut, KeyCode_X, KeyCode_Control);
+  Bind(paste_and_indent, KeyCode_V, KeyCode_Control);
+  Bind(search, KeyCode_F, KeyCode_Control);
+  Bind(reverse_search, KeyCode_F, KeyCode_Control, KeyCode_Shift);
+  Bind(save, KeyCode_S, KeyCode_Control);
+  Bind(redo, KeyCode_Y, KeyCode_Control);
+  Bind(undo, KeyCode_Z, KeyCode_Control);
 
-  // NOTE(mdelgado): This is supposed to start files in normal mode
+  // NOTE(mdelgado): All file and code maps should have normal mode as parent
   SelectMap(file_map_id);
   ParentMap(mapid_normal);
 
   SelectMap(code_map_id);
   ParentMap(mapid_normal);
-
-  // TODO(mdelgado): Since we start in normal mode, we should indicate it.
-  //  I'll most likely need to do this in a hook
-  // active_color_table.arrays[ defcolor_cursor ].vals[ 0 ] = 0xffff5533;
-  // active_color_table.arrays[ defcolor_at_cursor ].vals[ 0 ] = 0xff00aacc;
-  // active_color_table.arrays[ defcolor_margin_active ].vals[ 0 ] = 0xffff5533;
 }
 
 #endif //FCODER_DEFAULT_BINDINGS

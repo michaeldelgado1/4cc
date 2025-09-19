@@ -38,19 +38,25 @@ view_get_highlight_range(Application_Links *app, View_ID view) {
 }
 
 String_Const_u8
-get_selected_chars(Application_Links *app) {
-  View_ID view = get_active_view(app, 0);
-  Buffer_ID buffer = view_get_buffer(app, view, 0);
-
-  Range_i64 range = view_get_highlight_range(app, view);
+get_chars_in_range(Application_Links *app, Buffer_ID buffer, Range_i64 range) {
   Scratch_Block scratch(app);
   String_Const_u8 result = push_buffer_range(app, scratch, buffer, range);
   return result;
 }
 
+String_Const_u8
+get_selected_chars(Application_Links *app) {
+  View_ID view = get_active_view(app, 0);
+  Buffer_ID buffer = view_get_buffer(app, view, 0);
+
+  Range_i64 range = view_get_highlight_range(app, view);
+  return get_chars_in_range(app, buffer, range);
+}
+
 // NOTE(mdelgado): Switch Modes
 CUSTOM_COMMAND_SIG(go_to_normal_mode) {
   set_current_mapid(app, mapid_normal);
+  set_mark(app);
 
   active_color_table.arrays[ defcolor_cursor ].vals[ 0 ] = 0xffff5533;
   active_color_table.arrays[ defcolor_at_cursor ].vals[ 0 ] = 0xff00aacc;
@@ -59,6 +65,7 @@ CUSTOM_COMMAND_SIG(go_to_normal_mode) {
 
 CUSTOM_COMMAND_SIG(go_to_insert_mode) {
   set_current_mapid(app, mapid_insert);
+  set_mark(app);
 
   active_color_table.arrays[ defcolor_cursor ].vals[ 0 ] = 0xff80ff80;
   active_color_table.arrays[ defcolor_at_cursor ].vals[ 0 ] = 0xff293134;
@@ -108,6 +115,24 @@ CUSTOM_COMMAND_SIG(normal_move_left) {
 CUSTOM_COMMAND_SIG(normal_move_right) {
   move_right(app);
   set_mark(app);
+}
+
+CUSTOM_COMMAND_SIG(insert_after_cursor) {
+  View_ID view = get_active_view(app, 0);
+  i64 cursor = view_get_cursor_pos(app, view);
+  Range_i64 range = {};
+  range.start = cursor;
+  range.end = cursor + 1;
+
+  Buffer_ID buffer = view_get_buffer(app, view, 0);
+  String_Const_u8 underCursor = get_chars_in_range(app, buffer, range);
+
+  u8 curChar = underCursor.size ? underCursor.str[0] : 0;
+  if (curChar != '\n' && curChar != 0) {
+    normal_move_right(app);
+  }
+
+  go_to_insert_mode(app);
 }
 
 CUSTOM_COMMAND_SIG(change_range_case) {
@@ -217,6 +242,7 @@ custom_layer_init(Application_Links *app){
   SelectMap(mapid_normal);
   ParentMap(mapid_shared);
   Bind(go_to_insert_mode, KeyCode_I);
+  Bind(insert_after_cursor, KeyCode_A);
   Bind(normal_move_down, KeyCode_J);
   Bind(normal_move_up, KeyCode_K);
   Bind(normal_move_left, KeyCode_H);

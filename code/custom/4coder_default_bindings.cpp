@@ -54,26 +54,30 @@ get_selected_chars(Application_Links *app) {
 }
 
 // NOTE(mdelgado): Switch Modes
-CUSTOM_COMMAND_SIG(go_to_normal_mode) {
+CUSTOM_COMMAND_SIG(enter_normal_mode) {
   set_current_mapid(app, mapid_normal);
   set_mark(app);
+  set_mode_to_original(app);
 
   active_color_table.arrays[ defcolor_cursor ].vals[ 0 ] = 0xffff5533;
   active_color_table.arrays[ defcolor_at_cursor ].vals[ 0 ] = 0xff00aacc;
   active_color_table.arrays[ defcolor_margin_active ].vals[ 0 ] = 0xffff5533;
 }
 
-CUSTOM_COMMAND_SIG(go_to_insert_mode) {
+CUSTOM_COMMAND_SIG(enter_insert_mode) {
   set_current_mapid(app, mapid_insert);
   set_mark(app);
+  set_mode_to_notepad_like(app);
 
   active_color_table.arrays[ defcolor_cursor ].vals[ 0 ] = 0xff80ff80;
   active_color_table.arrays[ defcolor_at_cursor ].vals[ 0 ] = 0xff293134;
   active_color_table.arrays[ defcolor_margin_active ].vals[ 0 ] = 0xff80ff80;
 }
 
-CUSTOM_COMMAND_SIG(go_to_visual_mode) {
+CUSTOM_COMMAND_SIG(enter_visual_mode) {
   set_current_mapid(app, mapid_visual);
+  set_mark(app);
+  set_mode_to_original(app);
 
   active_color_table.arrays[ defcolor_cursor ].vals[ 0 ] = 0xffffff00;
   active_color_table.arrays[ defcolor_at_cursor ].vals[ 0 ] = 0xff0000ff;
@@ -88,7 +92,7 @@ CUSTOM_COMMAND_SIG(delete_to_end_of_line) {
 
 CUSTOM_COMMAND_SIG(edit_to_end_of_line) {
   delete_to_end_of_line(app);
-  go_to_insert_mode(app);
+  enter_insert_mode(app);
 }
 
 
@@ -132,17 +136,17 @@ CUSTOM_COMMAND_SIG(insert_after_cursor) {
     shared_move_right(app);
   }
 
-  go_to_insert_mode(app);
+  enter_insert_mode(app);
 }
 
 CUSTOM_COMMAND_SIG(insert_at_end_of_line) {
   seek_end_of_line(app);
-  go_to_insert_mode(app);
+  enter_insert_mode(app);
 }
 
 CUSTOM_COMMAND_SIG(insert_at_beginning_of_line) {
   seek_beginning_of_line(app);
-  go_to_insert_mode(app);
+  enter_insert_mode(app);
 }
 
 CUSTOM_COMMAND_SIG(create_new_line_below_and_insert) {
@@ -150,7 +154,7 @@ CUSTOM_COMMAND_SIG(create_new_line_below_and_insert) {
   Scratch_Block scratch(app);
   String_Const_u8 newLine = push_stringf(scratch, "\n");
   write_string(app, newLine);
-  go_to_insert_mode(app);
+  enter_insert_mode(app);
 }
 
 CUSTOM_COMMAND_SIG(create_new_line_above_and_insert) {
@@ -159,7 +163,7 @@ CUSTOM_COMMAND_SIG(create_new_line_above_and_insert) {
   String_Const_u8 newLine = push_stringf(scratch, "\n");
   write_string(app, newLine);
   move_up(app);
-  go_to_insert_mode(app);
+  enter_insert_mode(app);
 }
 
 CUSTOM_COMMAND_SIG(change_range_case) {
@@ -208,19 +212,22 @@ CUSTOM_COMMAND_SIG(write_text_auto_indent_and_move_mark) {
 // NOTE(mdelgado): Hooks
 BUFFER_HOOK_SIG(custom_begin_buffer){
   default_begin_buffer(app, buffer_id);
-  go_to_normal_mode(app);
+  enter_normal_mode(app);
   return 0;
 }
 
 void
-set_up_shared_mappings() {
+set_up_shared_mappings(Mapping *mapping) {
+  MappingScope();
+  SelectMapping(&framework_mapping);
+
   SelectMap(mapid_shared);
   // NOTE(mdelgado): This is needed for 4coder to properly start.
   BindCore(default_startup, CoreCode_Startup);
   // NOTE(mdelgado): This is needed for 4coder to exit without being forced.
   BindCore(default_try_exit, CoreCode_TryExit);
 
-  Bind(go_to_normal_mode, KeyCode_Escape);
+  Bind(enter_normal_mode, KeyCode_Escape);
   Bind(change_active_panel, KeyCode_L, KeyCode_Control);
   Bind(change_active_panel_backwards, KeyCode_H, KeyCode_Control);
   Bind(exit_4coder, KeyCode_Q, KeyCode_Control);
@@ -240,10 +247,13 @@ set_up_shared_mappings() {
 }
 
 void
-set_up_normal_mode_mappings() {
+set_up_normal_mode_mappings(Mapping *mapping) {
+  MappingScope();
+  SelectMapping(&framework_mapping);
+
   SelectMap(mapid_normal);
   ParentMap(mapid_shared);
-  Bind(go_to_insert_mode, KeyCode_I);
+  Bind(enter_insert_mode, KeyCode_I);
   Bind(insert_at_beginning_of_line, KeyCode_I, KeyCode_Shift);
   Bind(insert_after_cursor, KeyCode_A);
   Bind(insert_at_end_of_line, KeyCode_A, KeyCode_Shift);
@@ -282,11 +292,13 @@ set_up_normal_mode_mappings() {
   Bind(seek_beginning_of_line, KeyCode_6, KeyCode_Shift);
   Bind(seek_end_of_line, KeyCode_4, KeyCode_Shift);
   Bind(change_range_case, KeyCode_Tick, KeyCode_Shift);
-
 }
 
 void
-set_up_insert_mode_mappings() {
+set_up_insert_mode_mappings(Mapping *mapping) {
+  MappingScope();
+  SelectMapping(&framework_mapping);
+
   SelectMap(mapid_insert);
   ParentMap(mapid_shared);
   // NOTE(mdelgado): Some semi basic editor commands for insert mode
@@ -309,7 +321,6 @@ set_up_insert_mode_mappings() {
   Bind(save, KeyCode_S, KeyCode_Control);
   Bind(redo, KeyCode_Y, KeyCode_Control);
   Bind(undo, KeyCode_Z, KeyCode_Control);
-
 }
 
 // TODO(mdelgado): I'd like to avoid updating this function,
@@ -345,11 +356,13 @@ custom_layer_init(Application_Links *app){
 #endif
   setup_essential_mapping(&framework_mapping, global_map_id, file_map_id, code_map_id);
 
+  set_up_shared_mappings(&framework_mapping);
+  set_up_normal_mode_mappings(&framework_mapping);
+  set_up_insert_mode_mappings(&framework_mapping);
+
   MappingScope();
   SelectMapping(&framework_mapping);
-  set_up_shared_mappings();
-  set_up_normal_mode_mappings();
-  set_up_insert_mode_mappings();
+
   // NOTE(mdelgado): All file and code maps should have normal mode as parent
   SelectMap(file_map_id);
   ParentMap(mapid_normal);

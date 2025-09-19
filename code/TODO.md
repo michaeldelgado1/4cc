@@ -17,9 +17,11 @@ This is a list of bugs or features that need addressing.
 		- Move cursor to expand selection
 		- Commands use "selection" as a target
 	- delete D dd diw daw dt df
+        - Only did D
 	[X] Undo/Redo (u, ctrl-r)
 	- Indenting >> <<
 	- Replace r C cc ciw caw ct cf s S
+        - Only Did C and S
 	- Basic commands
 		- Write :w
 		- Edit :e

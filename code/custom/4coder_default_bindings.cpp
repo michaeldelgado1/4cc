@@ -148,6 +148,15 @@ CUSTOM_COMMAND_SIG(create_new_line_below_and_insert) {
   go_to_insert_mode(app);
 }
 
+CUSTOM_COMMAND_SIG(create_new_line_above_and_insert) {
+  seek_beginning_of_line(app);
+  Scratch_Block scratch(app);
+  String_Const_u8 newLine = push_stringf(scratch, "\n");
+  write_string(app, newLine);
+  move_up(app);
+  go_to_insert_mode(app);
+}
+
 CUSTOM_COMMAND_SIG(change_range_case) {
   View_ID view = get_active_view(app, 0);
   i64 pos = view_get_cursor_pos(app, view);
@@ -258,6 +267,7 @@ custom_layer_init(Application_Links *app){
   Bind(insert_after_cursor, KeyCode_A);
   Bind(insert_at_end_of_line, KeyCode_A, KeyCode_Shift);
   Bind(create_new_line_below_and_insert, KeyCode_O);
+  Bind(create_new_line_above_and_insert, KeyCode_O, KeyCode_Shift);
   Bind(normal_move_down, KeyCode_J);
   Bind(normal_move_up, KeyCode_K);
   Bind(normal_move_left, KeyCode_H);

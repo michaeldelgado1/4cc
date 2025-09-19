@@ -150,6 +150,7 @@ CUSTOM_COMMAND_SIG(change_range_case) {
 
 // NOTE(mdelgado): Hooks
 BUFFER_HOOK_SIG(custom_begin_buffer){
+  default_begin_buffer(app, buffer_id);
   go_to_normal_mode(app);
   return 0;
 }
@@ -167,7 +168,7 @@ custom_layer_init(Application_Links *app){
   set_all_default_hooks(app);
   // TODO(mdelgado): This almost worked. Something is setting the
   //  map back to file_map_id, and no longer treats buffers as code
-  // set_custom_hook(app, HookID_BeginBuffer, custom_begin_buffer);
+  set_custom_hook(app, HookID_BeginBuffer, custom_begin_buffer);
 
   mapping_init(tctx, &framework_mapping);
   String_ID global_map_id = vars_save_string_lit("keys_global");

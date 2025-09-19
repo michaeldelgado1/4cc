@@ -135,6 +135,11 @@ CUSTOM_COMMAND_SIG(insert_after_cursor) {
   go_to_insert_mode(app);
 }
 
+CUSTOM_COMMAND_SIG(insert_at_end_of_line) {
+  seek_end_of_line(app);
+  go_to_insert_mode(app);
+}
+
 CUSTOM_COMMAND_SIG(change_range_case) {
   View_ID view = get_active_view(app, 0);
   i64 pos = view_get_cursor_pos(app, view);
@@ -243,6 +248,7 @@ custom_layer_init(Application_Links *app){
   ParentMap(mapid_shared);
   Bind(go_to_insert_mode, KeyCode_I);
   Bind(insert_after_cursor, KeyCode_A);
+  Bind(insert_at_end_of_line, KeyCode_A, KeyCode_Shift);
   Bind(normal_move_down, KeyCode_J);
   Bind(normal_move_up, KeyCode_K);
   Bind(normal_move_left, KeyCode_H);

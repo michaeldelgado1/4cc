@@ -40,7 +40,7 @@ This is a list of bugs or features that need addressing.
     - Fuzzy find keymaps
     - AutoComplete ctrl-space
         - Up/Down in completion menu ctrl-n ctrl-p
-	- Change to upper/lower case `
+	[X] Change to upper/lower case `
 	- Search current Buffer /
 		- Next/Previous Search Instance n N
 	- Lines between mark and cursor highlighted in Visual Mode

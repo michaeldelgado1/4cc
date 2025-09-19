@@ -368,6 +368,7 @@ set_up_visual_mode_mappings(Mapping *mapping) {
   Bind(change_range_case, KeyCode_Tick, KeyCode_Shift);
   Bind(visual_delete_range, KeyCode_D);
   Bind(visual_edit_range, KeyCode_C);
+  Bind(visual_edit_range, KeyCode_S);
 }
 
 // TODO(mdelgado): I'd like to avoid updating this function,

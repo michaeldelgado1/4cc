@@ -229,15 +229,14 @@ CUSTOM_COMMAND_SIG(change_range_case) {
   View_ID view = get_active_view(app, 0);
   i64 pos = view_get_cursor_pos(app, view);
   i64 mark = view_get_mark_pos(app, view);
-  if (pos == mark) {
+  if (pos > mark || pos == mark) {
     move_right(app);
     pos++;
-  } else if (mark > pos) {
+  } else {
     cursor_mark_swap(app);
-    i64 newPos = mark;
-    mark = pos;
-    pos = newPos;
-  }
+    move_right(app);
+    cursor_mark_swap(app);
+  } 
 
   String_Const_u8 selected = get_selected_chars(app);
 
@@ -253,14 +252,18 @@ CUSTOM_COMMAND_SIG(change_range_case) {
     selected.str[i] = updatedChar;
   }
 
-  write_string(app, selected);
 
-  view_set_cursor_and_preferred_x(app, view, seek_pos(pos));
-  // TODO(mdelgado): This is broken. It only works if the selection
-  //  has a greater pos than the mark.
-  delete_range(app);
+  Buffer_ID buffer = view_get_buffer(app, view, 0);
+  Range_i64 range = view_get_highlight_range(app, view);
+  // TODO: Really close. It skips a letter. I think at the cursor
+  buffer_replace_range(app, buffer, range, selected);
+  // write_string(app, selected);
+  //
+  // view_set_cursor_and_preferred_x(app, view, seek_pos(pos));
+  // delete_range(app);
   view_set_cursor_and_preferred_x(app, view, seek_pos(pos));
   set_mark(app);
+  enter_normal_mode(app);
 }
 
 CUSTOM_COMMAND_SIG(write_text_auto_indent_and_move_mark) {

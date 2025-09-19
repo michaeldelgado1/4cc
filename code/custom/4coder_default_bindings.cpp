@@ -116,17 +116,53 @@ CUSTOM_COMMAND_SIG(shared_move_up) {
   set_mark(app);
 }
 
-// TODO(mdelgado): These almost works!!
-//  The mark and cursor can get into a
-//  state where part of the line is selected.
+// TODO(mdelgado): These line moves work, but are kinda heavy
 CUSTOM_COMMAND_SIG(visual_line_move_up) {
   move_up(app);
-  seek_end_of_line(app);
+
+  View_ID view = get_active_view(app, 0);
+  i64 cursor = view_get_cursor_pos(app, view);
+  i64 mark = view_get_mark_pos(app, view);
+
+  if (cursor > mark) {
+    seek_end_of_line(app);
+    cursor_mark_swap(app);
+    seek_beginning_of_line(app);
+    cursor_mark_swap(app);
+  } else if (cursor < mark) {
+    seek_beginning_of_line(app);
+    cursor_mark_swap(app);
+    seek_end_of_line(app);
+    cursor_mark_swap(app);
+  } else {
+    seek_beginning_of_line(app);
+    cursor_mark_swap(app);
+    seek_end_of_line(app);
+  }
 }
 
 CUSTOM_COMMAND_SIG(visual_line_move_down) {
   move_down(app);
-  seek_end_of_line(app);
+
+  View_ID view = get_active_view(app, 0);
+  i64 cursor = view_get_cursor_pos(app, view);
+  i64 mark = view_get_mark_pos(app, view);
+
+  if (cursor > mark) {
+    seek_end_of_line(app);
+    cursor_mark_swap(app);
+    seek_beginning_of_line(app);
+    cursor_mark_swap(app);
+  } else if (cursor < mark) {
+    seek_beginning_of_line(app);
+    cursor_mark_swap(app);
+    seek_end_of_line(app);
+    cursor_mark_swap(app);
+  } else {
+    seek_beginning_of_line(app);
+    cursor_mark_swap(app);
+    seek_end_of_line(app);
+  }
 }
 
 CUSTOM_COMMAND_SIG(shared_move_down) {

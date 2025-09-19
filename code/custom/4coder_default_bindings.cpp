@@ -209,6 +209,19 @@ CUSTOM_COMMAND_SIG(write_text_auto_indent_and_move_mark) {
   set_mark(app);
 }
 
+CUSTOM_COMMAND_SIG(visual_delete_range) {
+  View_ID view = get_active_view(app, 0);
+  i64 pos = view_get_cursor_pos(app, view);
+  i64 mark = view_get_mark_pos(app, view);
+  if (pos < mark) {
+    cursor_mark_swap(app);
+  }
+
+  move_right(app);
+  delete_range(app);
+  enter_normal_mode(app);
+}
+
 // NOTE(mdelgado): Hooks
 BUFFER_HOOK_SIG(custom_begin_buffer){
   default_begin_buffer(app, buffer_id);
@@ -254,6 +267,7 @@ set_up_normal_mode_mappings(Mapping *mapping) {
   SelectMap(mapid_normal);
   ParentMap(mapid_shared);
   Bind(enter_insert_mode, KeyCode_I);
+  Bind(enter_visual_mode, KeyCode_V);
   Bind(insert_at_beginning_of_line, KeyCode_I, KeyCode_Shift);
   Bind(insert_after_cursor, KeyCode_A);
   Bind(insert_at_end_of_line, KeyCode_A, KeyCode_Shift);
@@ -264,7 +278,8 @@ set_up_normal_mode_mappings(Mapping *mapping) {
   Bind(shared_move_left, KeyCode_H);
   Bind(shared_move_right, KeyCode_L);
   // TODO(mdelgado): This doesn't work with bindings that do more
-  //  than one thing. For example change_range_case
+  //  than one thing. For example change_range_case. It also doesn't
+  //  set the mark back at cursor position
   Bind(undo, KeyCode_U);
   Bind(redo, KeyCode_R, KeyCode_Control);
   Bind(search, KeyCode_ForwardSlash);
@@ -323,6 +338,33 @@ set_up_insert_mode_mappings(Mapping *mapping) {
   Bind(undo, KeyCode_Z, KeyCode_Control);
 }
 
+void
+set_up_visual_mode_mappings(Mapping *mapping) {
+  MappingScope();
+  SelectMapping(&framework_mapping);
+
+  SelectMap(mapid_visual);
+  ParentMap(mapid_shared);
+
+  Bind(move_down, KeyCode_J);
+  Bind(move_up, KeyCode_K);
+  Bind(move_left, KeyCode_H);
+  Bind(move_right, KeyCode_L);
+  Bind(move_left_whitespace_boundary, KeyCode_B);
+  // NOTE(mdelgado): Same as Normal Mode
+  Bind(move_right_whitespace_boundary, KeyCode_W);
+  Bind(move_right_whitespace_boundary, KeyCode_E);
+
+  // NOTE(mdelgado): Same as Normal Mode
+  Bind(goto_end_of_file, KeyCode_G, KeyCode_Shift);
+  // NOTE(mdelgado): Same as Normal Mode
+  Bind(seek_beginning_of_line, KeyCode_0);
+  Bind(seek_beginning_of_line, KeyCode_6, KeyCode_Shift);
+  Bind(seek_end_of_line, KeyCode_4, KeyCode_Shift);
+  Bind(change_range_case, KeyCode_Tick, KeyCode_Shift);
+  Bind(visual_delete_range, KeyCode_D);
+}
+
 // TODO(mdelgado): I'd like to avoid updating this function,
 //  I don't think this system gives me that ability to define
 //  this in my 4coder_custom.cpp file
@@ -359,6 +401,7 @@ custom_layer_init(Application_Links *app){
   set_up_shared_mappings(&framework_mapping);
   set_up_normal_mode_mappings(&framework_mapping);
   set_up_insert_mode_mappings(&framework_mapping);
+  set_up_visual_mode_mappings(&framework_mapping);
 
   MappingScope();
   SelectMapping(&framework_mapping);

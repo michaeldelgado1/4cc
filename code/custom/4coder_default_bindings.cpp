@@ -387,6 +387,10 @@ set_up_insert_mode_mappings(Mapping *mapping) {
   Bind(shared_move_down, KeyCode_Down);
   Bind(shared_move_left, KeyCode_Left);
   Bind(shared_move_right, KeyCode_Right);
+  Bind(move_up, KeyCode_Up, KeyCode_Shift);
+  Bind(move_down, KeyCode_Down, KeyCode_Shift);
+  Bind(move_left, KeyCode_Left, KeyCode_Shift);
+  Bind(move_right, KeyCode_Right, KeyCode_Shift);
   Bind(seek_end_of_line, KeyCode_End);
   Bind(seek_beginning_of_line, KeyCode_Home);
   Bind(page_up, KeyCode_PageUp);

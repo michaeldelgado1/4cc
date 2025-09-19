@@ -60,3 +60,4 @@ This is a list of bugs or features that need addressing.
 	- Respect LazyGit shortcuts
 - More languages supported in code highlighting
     - Currently only c/c++
+- Do a better job with mark snapping to the cursor

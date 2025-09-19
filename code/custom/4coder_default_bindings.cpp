@@ -57,6 +57,8 @@ get_selected_chars(Application_Links *app) {
 // NOTE(mdelgado): Switch Modes
 CUSTOM_COMMAND_SIG(enter_normal_mode) {
   set_current_mapid(app, mapid_normal);
+  // TODO(mdelgado): There is a way to set mark snapping. Manage these marks that way
+  //  and undo it in visual mode
   set_mark(app);
   set_mode_to_original(app);
 

@@ -97,22 +97,22 @@ CUSTOM_COMMAND_SIG(edit_entire_line) {
   edit_to_end_of_line(app);
 }
 
-CUSTOM_COMMAND_SIG(normal_move_up) {
+CUSTOM_COMMAND_SIG(shared_move_up) {
   move_up(app);
   set_mark(app);
 }
 
-CUSTOM_COMMAND_SIG(normal_move_down) {
+CUSTOM_COMMAND_SIG(shared_move_down) {
   move_down(app);
   set_mark(app);
 }
 
-CUSTOM_COMMAND_SIG(normal_move_left) {
+CUSTOM_COMMAND_SIG(shared_move_left) {
   move_left(app);
   set_mark(app);
 }
 
-CUSTOM_COMMAND_SIG(normal_move_right) {
+CUSTOM_COMMAND_SIG(shared_move_right) {
   move_right(app);
   set_mark(app);
 }
@@ -129,7 +129,7 @@ CUSTOM_COMMAND_SIG(insert_after_cursor) {
 
   u8 curChar = underCursor.size ? underCursor.str[0] : 0;
   if (curChar != '\n' && curChar != 0) {
-    normal_move_right(app);
+    shared_move_right(app);
   }
 
   go_to_insert_mode(app);
@@ -274,10 +274,10 @@ custom_layer_init(Application_Links *app){
   Bind(insert_at_end_of_line, KeyCode_A, KeyCode_Shift);
   Bind(create_new_line_below_and_insert, KeyCode_O);
   Bind(create_new_line_above_and_insert, KeyCode_O, KeyCode_Shift);
-  Bind(normal_move_down, KeyCode_J);
-  Bind(normal_move_up, KeyCode_K);
-  Bind(normal_move_left, KeyCode_H);
-  Bind(normal_move_right, KeyCode_L);
+  Bind(shared_move_down, KeyCode_J);
+  Bind(shared_move_up, KeyCode_K);
+  Bind(shared_move_left, KeyCode_H);
+  Bind(shared_move_right, KeyCode_L);
   // TODO(mdelgado): This doesn't work with bindings that do more
   //  than one thing. For example change_range_case
   Bind(undo, KeyCode_U);
@@ -306,7 +306,6 @@ custom_layer_init(Application_Links *app){
   // NOTE(mdelgado): Can't bind the Caret Symbol, but this works
   Bind(seek_beginning_of_line, KeyCode_6, KeyCode_Shift);
   Bind(seek_end_of_line, KeyCode_4, KeyCode_Shift);
-  // TODO(mdelgado): Needs to uppercase/lowercase and only do one char
   Bind(change_range_case, KeyCode_Tick, KeyCode_Shift);
 
   SelectMap(mapid_insert);
@@ -315,10 +314,10 @@ custom_layer_init(Application_Links *app){
   BindTextInput(write_text_and_auto_indent);
   Bind(delete_char, KeyCode_Delete);
   Bind(backspace_char, KeyCode_Backspace);
-  Bind(move_up, KeyCode_Up);
-  Bind(move_down, KeyCode_Down);
-  Bind(move_left, KeyCode_Left);
-  Bind(move_right, KeyCode_Right);
+  Bind(shared_move_up, KeyCode_Up);
+  Bind(shared_move_down, KeyCode_Down);
+  Bind(shared_move_left, KeyCode_Left);
+  Bind(shared_move_right, KeyCode_Right);
   Bind(seek_end_of_line, KeyCode_End);
   Bind(seek_beginning_of_line, KeyCode_Home);
   Bind(page_up, KeyCode_PageUp);

@@ -17,6 +17,7 @@ String_ID mapid_shared;
 String_ID mapid_normal;
 String_ID mapid_insert;
 String_ID mapid_visual;
+String_ID mapid_visual_line;
 
 void
 set_current_mapid(Application_Links *app, Command_Map_ID mapid) {
@@ -83,6 +84,15 @@ CUSTOM_COMMAND_SIG(enter_visual_mode) {
   active_color_table.arrays[ defcolor_at_cursor ].vals[ 0 ] = 0xff0000ff;
 }
 
+CUSTOM_COMMAND_SIG(enter_visual_line_mode) {
+  enter_visual_mode(app);
+  set_current_mapid(app, mapid_visual_line);
+  seek_beginning_of_line(app);
+  set_mark(app);
+  seek_end_of_line(app);
+}
+
+
 // NOTE(mdelgado): Editing
 CUSTOM_COMMAND_SIG(delete_to_end_of_line) {
   set_mark(app);
@@ -104,6 +114,19 @@ CUSTOM_COMMAND_SIG(edit_entire_line) {
 CUSTOM_COMMAND_SIG(shared_move_up) {
   move_up(app);
   set_mark(app);
+}
+
+// TODO(mdelgado): These almost works!!
+//  The mark and cursor can get into a
+//  state where part of the line is selected.
+CUSTOM_COMMAND_SIG(visual_line_move_up) {
+  move_up(app);
+  seek_end_of_line(app);
+}
+
+CUSTOM_COMMAND_SIG(visual_line_move_down) {
+  move_down(app);
+  seek_end_of_line(app);
 }
 
 CUSTOM_COMMAND_SIG(shared_move_down) {
@@ -208,6 +231,7 @@ CUSTOM_COMMAND_SIG(write_text_auto_indent_and_move_mark) {
   write_text_and_auto_indent(app);
   set_mark(app);
 }
+
 CUSTOM_COMMAND_SIG(visual_delete_range) {
   View_ID view = get_active_view(app, 0);
   i64 pos = view_get_cursor_pos(app, view);
@@ -225,6 +249,8 @@ CUSTOM_COMMAND_SIG(visual_edit_range) {
   visual_delete_range(app);
   enter_insert_mode(app);
 }
+
+CUSTOM_COMMAND_SIG(noop) { }
 
 // NOTE(mdelgado): Hooks
 BUFFER_HOOK_SIG(custom_begin_buffer){
@@ -272,6 +298,7 @@ set_up_normal_mode_mappings(Mapping *mapping) {
   ParentMap(mapid_shared);
   Bind(enter_insert_mode, KeyCode_I);
   Bind(enter_visual_mode, KeyCode_V);
+  Bind(enter_visual_line_mode, KeyCode_V, KeyCode_Shift);
   Bind(insert_at_beginning_of_line, KeyCode_I, KeyCode_Shift);
   Bind(insert_after_cursor, KeyCode_A);
   Bind(insert_at_end_of_line, KeyCode_A, KeyCode_Shift);
@@ -372,6 +399,20 @@ set_up_visual_mode_mappings(Mapping *mapping) {
   Bind(visual_edit_range, KeyCode_S);
 }
 
+void
+set_up_visual_line_mode_mappings(Mapping *mapping) {
+  MappingScope();
+  SelectMapping(&framework_mapping);
+
+  SelectMap(mapid_visual_line);
+  ParentMap(mapid_visual);
+
+  Bind(visual_line_move_down, KeyCode_J);
+  Bind(visual_line_move_up, KeyCode_K);
+  Bind(noop, KeyCode_H);
+  Bind(noop, KeyCode_L);
+}
+
 // TODO(mdelgado): I'd like to avoid updating this function,
 //  I don't think this system gives me that ability to define
 //  this in my 4coder_custom.cpp file
@@ -397,6 +438,7 @@ custom_layer_init(Application_Links *app){
   mapid_normal = vars_save_string_lit("mapid_normal");
   mapid_insert = vars_save_string_lit("mapid_insert");
   mapid_visual = vars_save_string_lit("mapid_visual");
+  mapid_visual_line = vars_save_string_lit("mapid_visual_line");
 
 #if OS_MAC
     setup_mac_mapping(&framework_mapping, global_map_id, file_map_id, code_map_id);
@@ -409,6 +451,7 @@ custom_layer_init(Application_Links *app){
   set_up_normal_mode_mappings(&framework_mapping);
   set_up_insert_mode_mappings(&framework_mapping);
   set_up_visual_mode_mappings(&framework_mapping);
+  set_up_visual_line_mode_mappings(&framework_mapping);
 
   MappingScope();
   SelectMapping(&framework_mapping);

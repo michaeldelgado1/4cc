@@ -200,6 +200,12 @@ CUSTOM_COMMAND_SIG(change_range_case) {
   set_mark(app);
 }
 
+CUSTOM_COMMAND_SIG(write_text_auto_indent_and_move_mark) {
+  write_text_and_auto_indent(app);
+  set_mark(app);
+}
+
+
 // NOTE(mdelgado): Hooks
 BUFFER_HOOK_SIG(custom_begin_buffer){
   default_begin_buffer(app, buffer_id);
@@ -311,7 +317,7 @@ custom_layer_init(Application_Links *app){
   SelectMap(mapid_insert);
   ParentMap(mapid_shared);
   // NOTE(mdelgado): Some semi basic editor commands for insert mode
-  BindTextInput(write_text_and_auto_indent);
+  BindTextInput(write_text_auto_indent_and_move_mark);
   Bind(delete_char, KeyCode_Delete);
   Bind(backspace_char, KeyCode_Backspace);
   Bind(shared_move_up, KeyCode_Up);

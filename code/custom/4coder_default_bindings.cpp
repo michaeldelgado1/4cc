@@ -367,6 +367,7 @@ set_up_visual_mode_mappings(Mapping *mapping) {
   Bind(seek_end_of_line, KeyCode_4, KeyCode_Shift);
   Bind(change_range_case, KeyCode_Tick, KeyCode_Shift);
   Bind(visual_delete_range, KeyCode_D);
+  Bind(visual_delete_range, KeyCode_X);
   Bind(visual_edit_range, KeyCode_C);
   Bind(visual_edit_range, KeyCode_S);
 }

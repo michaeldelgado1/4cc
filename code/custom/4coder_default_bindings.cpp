@@ -231,7 +231,6 @@ CUSTOM_COMMAND_SIG(change_range_case) {
   i64 mark = view_get_mark_pos(app, view);
   if (pos > mark || pos == mark) {
     move_right(app);
-    pos++;
   } else {
     cursor_mark_swap(app);
     move_right(app);
@@ -255,14 +254,8 @@ CUSTOM_COMMAND_SIG(change_range_case) {
 
   Buffer_ID buffer = view_get_buffer(app, view, 0);
   Range_i64 range = view_get_highlight_range(app, view);
-  // TODO: Really close. It skips a letter. I think at the cursor
   buffer_replace_range(app, buffer, range, selected);
-  // write_string(app, selected);
-  //
-  // view_set_cursor_and_preferred_x(app, view, seek_pos(pos));
-  // delete_range(app);
   view_set_cursor_and_preferred_x(app, view, seek_pos(pos));
-  set_mark(app);
   enter_normal_mode(app);
 }
 

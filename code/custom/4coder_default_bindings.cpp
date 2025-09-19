@@ -208,7 +208,6 @@ CUSTOM_COMMAND_SIG(write_text_auto_indent_and_move_mark) {
   write_text_and_auto_indent(app);
   set_mark(app);
 }
-
 CUSTOM_COMMAND_SIG(visual_delete_range) {
   View_ID view = get_active_view(app, 0);
   i64 pos = view_get_cursor_pos(app, view);
@@ -220,6 +219,11 @@ CUSTOM_COMMAND_SIG(visual_delete_range) {
   move_right(app);
   delete_range(app);
   enter_normal_mode(app);
+}
+
+CUSTOM_COMMAND_SIG(visual_edit_range) {
+  visual_delete_range(app);
+  enter_insert_mode(app);
 }
 
 // NOTE(mdelgado): Hooks
@@ -363,6 +367,7 @@ set_up_visual_mode_mappings(Mapping *mapping) {
   Bind(seek_end_of_line, KeyCode_4, KeyCode_Shift);
   Bind(change_range_case, KeyCode_Tick, KeyCode_Shift);
   Bind(visual_delete_range, KeyCode_D);
+  Bind(visual_edit_range, KeyCode_C);
 }
 
 // TODO(mdelgado): I'd like to avoid updating this function,

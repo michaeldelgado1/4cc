@@ -205,49 +205,15 @@ CUSTOM_COMMAND_SIG(write_text_auto_indent_and_move_mark) {
   set_mark(app);
 }
 
-
 // NOTE(mdelgado): Hooks
 BUFFER_HOOK_SIG(custom_begin_buffer){
   default_begin_buffer(app, buffer_id);
   go_to_normal_mode(app);
   return 0;
 }
-// TODO(mdelgado): I'd like to avoid updating this function,
-//  I don't think this system gives me that ability to define
-//  this in my 4coder_custom.cpp file
+
 void
-custom_layer_init(Application_Links *app){
-  Thread_Context *tctx = get_thread_context(app);
-
-  // NOTE(allen): setup for default framework
-  default_framework_init(app);
-
-  // NOTE(allen): default hooks and command maps
-  set_all_default_hooks(app);
-  // TODO(mdelgado): This almost worked. Something is setting the
-  //  map back to file_map_id, and no longer treats buffers as code
-  set_custom_hook(app, HookID_BeginBuffer, custom_begin_buffer);
-
-  mapping_init(tctx, &framework_mapping);
-  String_ID global_map_id = vars_save_string_lit("keys_global");
-  String_ID file_map_id = vars_save_string_lit("keys_file");
-  String_ID code_map_id = vars_save_string_lit("keys_code");
-
-  mapid_shared = vars_save_string_lit("mapid_shared");
-  mapid_normal = vars_save_string_lit("mapid_normal");
-  mapid_insert = vars_save_string_lit("mapid_insert");
-  mapid_visual = vars_save_string_lit("mapid_visual");
-
-#if OS_MAC
-    setup_mac_mapping(&framework_mapping, global_map_id, file_map_id, code_map_id);
-#else
-    setup_default_global_mapping(&framework_mapping, global_map_id);
-#endif
-  setup_essential_mapping(&framework_mapping, global_map_id, file_map_id, code_map_id);
-
-  MappingScope();
-  SelectMapping(&framework_mapping);
-
+set_up_shared_mappings() {
   SelectMap(mapid_shared);
   // NOTE(mdelgado): This is needed for 4coder to properly start.
   BindCore(default_startup, CoreCode_Startup);
@@ -271,7 +237,10 @@ custom_layer_init(Application_Links *app){
    *  Bind(word_complete_drop_down,    KeyCode_Space, KeyCode_Control);
    */
   Bind(word_complete, KeyCode_Space, KeyCode_Control);
+}
 
+void
+set_up_normal_mode_mappings() {
   SelectMap(mapid_normal);
   ParentMap(mapid_shared);
   Bind(go_to_insert_mode, KeyCode_I);
@@ -314,6 +283,10 @@ custom_layer_init(Application_Links *app){
   Bind(seek_end_of_line, KeyCode_4, KeyCode_Shift);
   Bind(change_range_case, KeyCode_Tick, KeyCode_Shift);
 
+}
+
+void
+set_up_insert_mode_mappings() {
   SelectMap(mapid_insert);
   ParentMap(mapid_shared);
   // NOTE(mdelgado): Some semi basic editor commands for insert mode
@@ -337,6 +310,46 @@ custom_layer_init(Application_Links *app){
   Bind(redo, KeyCode_Y, KeyCode_Control);
   Bind(undo, KeyCode_Z, KeyCode_Control);
 
+}
+
+// TODO(mdelgado): I'd like to avoid updating this function,
+//  I don't think this system gives me that ability to define
+//  this in my 4coder_custom.cpp file
+void
+custom_layer_init(Application_Links *app){
+  Thread_Context *tctx = get_thread_context(app);
+
+  // NOTE(allen): setup for default framework
+  default_framework_init(app);
+
+  // NOTE(allen): default hooks and command maps
+  set_all_default_hooks(app);
+  // TODO(mdelgado): This almost worked. Something is setting the
+  //  map back to file_map_id, and no longer treats buffers as code
+  set_custom_hook(app, HookID_BeginBuffer, custom_begin_buffer);
+
+  mapping_init(tctx, &framework_mapping);
+  String_ID global_map_id = vars_save_string_lit("keys_global");
+  String_ID file_map_id = vars_save_string_lit("keys_file");
+  String_ID code_map_id = vars_save_string_lit("keys_code");
+
+  mapid_shared = vars_save_string_lit("mapid_shared");
+  mapid_normal = vars_save_string_lit("mapid_normal");
+  mapid_insert = vars_save_string_lit("mapid_insert");
+  mapid_visual = vars_save_string_lit("mapid_visual");
+
+#if OS_MAC
+    setup_mac_mapping(&framework_mapping, global_map_id, file_map_id, code_map_id);
+#else
+    setup_default_global_mapping(&framework_mapping, global_map_id);
+#endif
+  setup_essential_mapping(&framework_mapping, global_map_id, file_map_id, code_map_id);
+
+  MappingScope();
+  SelectMapping(&framework_mapping);
+  set_up_shared_mappings();
+  set_up_normal_mode_mappings();
+  set_up_insert_mode_mappings();
   // NOTE(mdelgado): All file and code maps should have normal mode as parent
   SelectMap(file_map_id);
   ParentMap(mapid_normal);

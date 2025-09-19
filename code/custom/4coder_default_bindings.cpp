@@ -140,6 +140,11 @@ CUSTOM_COMMAND_SIG(insert_at_end_of_line) {
   go_to_insert_mode(app);
 }
 
+CUSTOM_COMMAND_SIG(insert_at_beginning_of_line) {
+  seek_beginning_of_line(app);
+  go_to_insert_mode(app);
+}
+
 CUSTOM_COMMAND_SIG(create_new_line_below_and_insert) {
   seek_end_of_line(app);
   Scratch_Block scratch(app);
@@ -264,6 +269,7 @@ custom_layer_init(Application_Links *app){
   SelectMap(mapid_normal);
   ParentMap(mapid_shared);
   Bind(go_to_insert_mode, KeyCode_I);
+  Bind(insert_at_beginning_of_line, KeyCode_I, KeyCode_Shift);
   Bind(insert_after_cursor, KeyCode_A);
   Bind(insert_at_end_of_line, KeyCode_A, KeyCode_Shift);
   Bind(create_new_line_below_and_insert, KeyCode_O);

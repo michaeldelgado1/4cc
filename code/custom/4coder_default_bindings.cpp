@@ -304,6 +304,12 @@ CUSTOM_COMMAND_SIG(delete_line_to_normal_mode) {
   enter_normal_mode(app);
 }
 
+CUSTOM_COMMAND_SIG(delete_word_to_normal_mode) {
+  // TODO(mdelgado): This doesn't work correctly with whitespace chars
+  delete_alpha_numeric_boundary(app);
+  enter_normal_mode(app);
+}
+
 CUSTOM_COMMAND_SIG(noop) { }
 
 // NOTE(mdelgado): Hooks
@@ -393,7 +399,6 @@ set_up_normal_mode_mappings(Mapping *mapping) {
   Bind(seek_end_of_line, KeyCode_4, KeyCode_Shift);
   Bind(change_range_case, KeyCode_Tick, KeyCode_Shift);
   Bind(start_delete_combo, KeyCode_D);
-  // Bind(delete_line_to_normal_mode, KeyCode_D);
 }
 
 void
@@ -403,8 +408,9 @@ set_up_insert_mode_mappings(Mapping *mapping) {
 
   SelectMap(mapid_insert);
   ParentMap(mapid_shared);
-  // NOTE(mdelgado): Some semi basic editor commands for insert mode
   BindTextInput(write_text_auto_indent_and_move_mark);
+
+  // NOTE(mdelgado): Some semi basic editor commands for insert mode
   Bind(delete_char, KeyCode_Delete);
   Bind(backspace_char, KeyCode_Backspace);
   Bind(shared_move_up, KeyCode_Up);
@@ -482,6 +488,7 @@ set_up_delete_combos(Mapping *mapping) {
   ParentMap(mapid_shared);
 
   Bind(delete_line_to_normal_mode, KeyCode_D);
+  Bind(delete_word_to_normal_mode, KeyCode_W);
 }
 
 // TODO(mdelgado): I'd like to avoid updating this function,

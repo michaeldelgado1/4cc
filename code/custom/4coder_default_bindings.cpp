@@ -13,11 +13,15 @@
 #include "generated/managed_id_metadata.cpp"
 #endif
 
+// NOTE(mdelgado): Vim modes
 String_ID mapid_shared;
 String_ID mapid_normal;
 String_ID mapid_insert;
 String_ID mapid_visual;
 String_ID mapid_visual_line;
+
+// NOTE(mdelgado): Key combo maps
+String_ID mapid_delete;
 
 void
 set_current_mapid(Application_Links *app, Command_Map_ID mapid) {
@@ -101,6 +105,10 @@ CUSTOM_COMMAND_SIG(enter_visual_line_mode) {
   active_color_table.arrays[ defcolor_margin_active ].vals[ 0 ] = 0xffbb9af7;
 }
 
+
+CUSTOM_COMMAND_SIG(start_delete_combo) {
+  set_current_mapid(app, mapid_delete);
+}
 
 // NOTE(mdelgado): Editing
 CUSTOM_COMMAND_SIG(delete_to_end_of_line) {
@@ -291,6 +299,11 @@ CUSTOM_COMMAND_SIG(visual_edit_range) {
   enter_insert_mode(app);
 }
 
+CUSTOM_COMMAND_SIG(delete_line_to_normal_mode) {
+  delete_line(app);
+  enter_normal_mode(app);
+}
+
 CUSTOM_COMMAND_SIG(noop) { }
 
 // NOTE(mdelgado): Hooks
@@ -333,7 +346,7 @@ set_up_shared_mappings(Mapping *mapping) {
 void
 set_up_normal_mode_mappings(Mapping *mapping) {
   MappingScope();
-  SelectMapping(&framework_mapping);
+  SelectMapping(mapping);
 
   SelectMap(mapid_normal);
   ParentMap(mapid_shared);
@@ -379,6 +392,8 @@ set_up_normal_mode_mappings(Mapping *mapping) {
   Bind(seek_beginning_of_line, KeyCode_6, KeyCode_Shift);
   Bind(seek_end_of_line, KeyCode_4, KeyCode_Shift);
   Bind(change_range_case, KeyCode_Tick, KeyCode_Shift);
+  Bind(start_delete_combo, KeyCode_D);
+  // Bind(delete_line_to_normal_mode, KeyCode_D);
 }
 
 void
@@ -458,6 +473,17 @@ set_up_visual_line_mode_mappings(Mapping *mapping) {
   Bind(noop, KeyCode_L);
 }
 
+void
+set_up_delete_combos(Mapping *mapping) {
+  MappingScope();
+  SelectMapping(mapping);
+
+  SelectMap(mapid_delete);
+  ParentMap(mapid_shared);
+
+  Bind(delete_line_to_normal_mode, KeyCode_D);
+}
+
 // TODO(mdelgado): I'd like to avoid updating this function,
 //  I don't think this system gives me that ability to define
 //  this in my 4coder_custom.cpp file
@@ -485,6 +511,8 @@ custom_layer_init(Application_Links *app){
   mapid_visual = vars_save_string_lit("mapid_visual");
   mapid_visual_line = vars_save_string_lit("mapid_visual_line");
 
+  mapid_delete = vars_save_string_lit("mapid_delete");
+
 #if OS_MAC
     setup_mac_mapping(&framework_mapping, global_map_id, file_map_id, code_map_id);
 #else
@@ -497,6 +525,9 @@ custom_layer_init(Application_Links *app){
   set_up_insert_mode_mappings(&framework_mapping);
   set_up_visual_mode_mappings(&framework_mapping);
   set_up_visual_line_mode_mappings(&framework_mapping);
+
+  // NOTE(mdelgad): Multi Key Combos
+  set_up_delete_combos(&framework_mapping); 
 
   MappingScope();
   SelectMapping(&framework_mapping);

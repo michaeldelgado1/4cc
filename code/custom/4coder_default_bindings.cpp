@@ -62,9 +62,9 @@ CUSTOM_COMMAND_SIG(enter_normal_mode) {
   set_mark(app);
   set_mode_to_original(app);
 
-  active_color_table.arrays[ defcolor_cursor ].vals[ 0 ] = 0xffff5533;
-  active_color_table.arrays[ defcolor_at_cursor ].vals[ 0 ] = 0xff00aacc;
-  active_color_table.arrays[ defcolor_margin_active ].vals[ 0 ] = 0xffff5533;
+  active_color_table.arrays[ defcolor_cursor ].vals[ 0 ] = 0xff7aa2f7;
+  active_color_table.arrays[ defcolor_at_cursor ].vals[ 0 ] = 0xff4b7be3;
+  active_color_table.arrays[ defcolor_margin_active ].vals[ 0 ] = 0xff7aa2f7;
 }
 
 CUSTOM_COMMAND_SIG(enter_insert_mode) {
@@ -72,9 +72,11 @@ CUSTOM_COMMAND_SIG(enter_insert_mode) {
   set_mark(app);
   set_mode_to_notepad_like(app);
 
-  active_color_table.arrays[ defcolor_cursor ].vals[ 0 ] = 0xff80ff80;
-  active_color_table.arrays[ defcolor_at_cursor ].vals[ 0 ] = 0xff293134;
-  active_color_table.arrays[ defcolor_margin_active ].vals[ 0 ] = 0xff80ff80;
+  // TODO(mdelgado): I'd rather revert back to the default color scheme in insert mode
+  //  I'm not sure how I pull that in here
+  active_color_table.arrays[ defcolor_cursor ].vals[ 0 ] = 0xff9ece6a;
+  active_color_table.arrays[ defcolor_at_cursor ].vals[ 0 ] = 0xff68ac1e;
+  active_color_table.arrays[ defcolor_margin_active ].vals[ 0 ] = 0xff9ece6a;
 }
 
 CUSTOM_COMMAND_SIG(enter_visual_mode) {
@@ -82,8 +84,9 @@ CUSTOM_COMMAND_SIG(enter_visual_mode) {
   set_mark(app);
   set_mode_to_original(app);
 
-  active_color_table.arrays[ defcolor_cursor ].vals[ 0 ] = 0xffffff00;
-  active_color_table.arrays[ defcolor_at_cursor ].vals[ 0 ] = 0xff0000ff;
+  active_color_table.arrays[ defcolor_cursor ].vals[ 0 ] = 0xffbb9af7;
+  active_color_table.arrays[ defcolor_at_cursor ].vals[ 0 ] = 0xffa675ff;
+  active_color_table.arrays[ defcolor_margin_active ].vals[ 0 ] = 0xffbb9af7;
 }
 
 CUSTOM_COMMAND_SIG(enter_visual_line_mode) {
@@ -92,6 +95,10 @@ CUSTOM_COMMAND_SIG(enter_visual_line_mode) {
   seek_beginning_of_line(app);
   set_mark(app);
   seek_end_of_line(app);
+
+  active_color_table.arrays[ defcolor_cursor ].vals[ 0 ] = 0xffbb9af7;
+  active_color_table.arrays[ defcolor_at_cursor ].vals[ 0 ] = 0xffa675ff;
+  active_color_table.arrays[ defcolor_margin_active ].vals[ 0 ] = 0xffbb9af7;
 }
 
 

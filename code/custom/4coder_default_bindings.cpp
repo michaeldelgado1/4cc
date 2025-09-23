@@ -95,13 +95,14 @@ CUSTOM_COMMAND_SIG(enter_visual_mode) {
 }
 
 CUSTOM_COMMAND_SIG(enter_visual_line_mode) {
-  enter_visual_mode(app);
   set_current_mapid(app, mapid_visual_line);
 
+  disable_snap_mark_to_cursor();
   seek_beginning_of_line(app);
   set_mark(app);
   seek_end_of_line(app);
 
+  set_mode_to_original(app);
   active_color_table.arrays[ defcolor_cursor ].vals[ 0 ] = 0xffbb9af7;
   active_color_table.arrays[ defcolor_at_cursor ].vals[ 0 ] = 0xffa675ff;
   active_color_table.arrays[ defcolor_margin_active ].vals[ 0 ] = 0xffbb9af7;
@@ -478,8 +479,6 @@ set_up_visual_line_mode_mappings(Mapping *mapping) {
 
   Bind(visual_line_move_down, KeyCode_J);
   Bind(visual_line_move_up, KeyCode_K);
-  Bind(noop, KeyCode_H);
-  Bind(noop, KeyCode_L);
   Bind(goto_end_of_file, KeyCode_G, KeyCode_Shift);
   Bind(change_range_case, KeyCode_Tick, KeyCode_Shift);
   Bind(visual_delete_range, KeyCode_D);
@@ -512,8 +511,8 @@ custom_layer_init(Application_Links *app){
 
   // NOTE(allen): default hooks and command maps
   set_all_default_hooks(app);
-  // TODO(mdelgado): This almost worked. Something is setting the
-  //  map back to file_map_id, and no longer treats buffers as code
+
+  // NOTE(mdelgado): Adding in my hook overrides
   set_custom_hook(app, HookID_BeginBuffer, custom_begin_buffer);
 
   mapping_init(tctx, &framework_mapping);

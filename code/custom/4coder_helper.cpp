@@ -2153,15 +2153,44 @@ get_ranges_of_duplicate_keys(Arena *arena, i32 *keys, i32 stride, i32 count){
 }
 
 function void
-no_mark_snap_to_cursor(Application_Links *app, Managed_Scope view_scope){
-    b32 *snap_to_cursor = scope_attachment(app, view_scope, view_snap_mark_to_cursor, b32);
-    *snap_to_cursor = false;
+enable_snap_to_cursor(Application_Links *app, View_ID view) {
+  Buffer_ID buffer = view_get_buffer(app, view, 0);
+  Managed_Scope scope = buffer_get_managed_scope(app, buffer);
+  b32 *snap_mark_to_cursor = scope_attachment(app, scope, view_snap_mark_to_cursor, b32);
+  *snap_mark_to_cursor = true;
 }
 
 function void
-no_mark_snap_to_cursor(Application_Links *app, View_ID view_id){
-    Managed_Scope scope = view_get_managed_scope(app, view_id);
-    no_mark_snap_to_cursor(app, scope);
+enable_snap_to_cursor(Application_Links *app) {
+  View_ID view = get_active_view(app, 0);
+  enable_snap_to_cursor(app, view);
+}
+
+function void
+disable_snap_to_cursor(Application_Links *app, View_ID view) {
+  Buffer_ID buffer = view_get_buffer(app, view, 0);
+  Managed_Scope scope = buffer_get_managed_scope(app, buffer);
+  b32 *snap_mark_to_cursor = scope_attachment(app, scope, view_snap_mark_to_cursor, b32);
+  *snap_mark_to_cursor = false;
+}
+
+function void
+disable_snap_to_cursor(Application_Links *app) {
+  View_ID view = get_active_view(app, 0);
+  disable_snap_to_cursor(app, view);
+}
+
+// function void
+// no_mark_snap_to_cursor(Application_Links *app, Managed_Scope view_scope){
+//     b32 *snap_to_cursor = scope_attachment(app, view_scope, view_snap_mark_to_cursor, b32);
+//     *snap_to_cursor = false;
+// }
+//
+function void
+no_mark_snap_to_cursor(Application_Links *app, View_ID view){
+  disable_snap_to_cursor(app, view);
+    // Managed_Scope scope = view_get_managed_scope(app, view);
+    // no_mark_snap_to_cursor(app, scope);
 }
 
 function void

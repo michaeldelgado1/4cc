@@ -1085,11 +1085,12 @@ default_pre_command(Application_Links *app, Managed_Scope scope){
         for (View_ID view_it = get_view_next(app, 0, Access_Always);
              view_it != 0;
              view_it = get_view_next(app, view_it, Access_Always)){
-            Managed_Scope scope_it = view_get_managed_scope(app, view_it);
-            b32 *snap_mark_to_cursor =
-                scope_attachment(app, scope_it, view_snap_mark_to_cursor,
-                                 b32);
-            *snap_mark_to_cursor = true;
+            // Managed_Scope scope_it = view_get_managed_scope(app, view_it);
+            // b32 *snap_mark_to_cursor =
+            //     scope_attachment(app, scope_it, view_snap_mark_to_cursor,
+            //                      b32);
+            // *snap_mark_to_cursor = true;
+            enable_snap_to_cursor(app, view_it);
         }
     }
 }

@@ -64,7 +64,9 @@ CUSTOM_COMMAND_SIG(enter_normal_mode) {
   // TODO(mdelgado): There is a way to set mark snapping. Manage these marks that way
   //  and undo it in visual mode
   set_mark(app);
+  // NOTE(mdelgado): This changes the cursor to the rectangluar shape
   set_mode_to_original(app);
+  enable_snap_to_cursor(app);
 
   active_color_table.arrays[ defcolor_cursor ].vals[ 0 ] = 0xff7aa2f7;
   active_color_table.arrays[ defcolor_at_cursor ].vals[ 0 ] = 0xff4b7be3;
@@ -75,6 +77,8 @@ CUSTOM_COMMAND_SIG(enter_insert_mode) {
   set_current_mapid(app, mapid_insert);
   set_mark(app);
   set_mode_to_notepad_like(app);
+
+  enable_snap_to_cursor(app);
 
   // TODO(mdelgado): I'd rather revert back to the default color scheme in insert mode
   //  I'm not sure how I pull that in here
@@ -87,6 +91,9 @@ CUSTOM_COMMAND_SIG(enter_visual_mode) {
   set_current_mapid(app, mapid_visual);
   set_mark(app);
   set_mode_to_original(app);
+  set_mark(app);
+
+  disable_snap_to_cursor(app);
 
   active_color_table.arrays[ defcolor_cursor ].vals[ 0 ] = 0xffbb9af7;
   active_color_table.arrays[ defcolor_at_cursor ].vals[ 0 ] = 0xffa675ff;
@@ -99,6 +106,8 @@ CUSTOM_COMMAND_SIG(enter_visual_line_mode) {
   seek_beginning_of_line(app);
   set_mark(app);
   seek_end_of_line(app);
+
+  disable_snap_to_cursor(app);
 
   active_color_table.arrays[ defcolor_cursor ].vals[ 0 ] = 0xffbb9af7;
   active_color_table.arrays[ defcolor_at_cursor ].vals[ 0 ] = 0xffa675ff;

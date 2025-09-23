@@ -1078,21 +1078,16 @@ set_next_rewrite(Application_Links *app, View_ID view, Rewrite_Type rewrite){
 
 function void
 default_pre_command(Application_Links *app, Managed_Scope scope){
-    Rewrite_Type *next_rewrite =
-        scope_attachment(app, scope, view_next_rewrite_loc, Rewrite_Type);
+    Rewrite_Type *next_rewrite = scope_attachment(app, scope, view_next_rewrite_loc, Rewrite_Type);
     *next_rewrite = Rewrite_None;
-    if (fcoder_mode == FCoderMode_NotepadLike){
-        for (View_ID view_it = get_view_next(app, 0, Access_Always);
-             view_it != 0;
-             view_it = get_view_next(app, view_it, Access_Always)){
-            // Managed_Scope scope_it = view_get_managed_scope(app, view_it);
-            // b32 *snap_mark_to_cursor =
-            //     scope_attachment(app, scope_it, view_snap_mark_to_cursor,
-            //                      b32);
-            // *snap_mark_to_cursor = true;
-            enable_snap_to_cursor(app, view_it);
-        }
-    }
+    // NOTE(mdelagdo): Remvove
+    // if (fcoder_mode == FCoderMode_NotepadLike){
+    //     for (View_ID view_it = get_view_next(app, 0, Access_Always);
+    //          view_it != 0;
+    //          view_it = get_view_next(app, view_it, Access_Always)){
+    //         enable_snap_to_cursor(app, view_it);
+    //     }
+    // }
 }
 
 function void
@@ -1100,24 +1095,26 @@ default_post_command(Application_Links *app, Managed_Scope scope){
     Rewrite_Type *next_rewrite = scope_attachment(app, scope, view_next_rewrite_loc, Rewrite_Type);
     if (next_rewrite != 0){
         if (*next_rewrite != Rewrite_NoChange){
-            Rewrite_Type *rewrite =
-                scope_attachment(app, scope, view_rewrite_loc, Rewrite_Type);
+            Rewrite_Type *rewrite = scope_attachment(app, scope, view_rewrite_loc, Rewrite_Type);
             *rewrite = *next_rewrite;
         }
     }
-    if (fcoder_mode == FCoderMode_NotepadLike){
+    // if (fcoder_mode == FCoderMode_NotepadLike){
         for (View_ID view_it = get_view_next(app, 0, Access_Always);
              view_it != 0;
              view_it = get_view_next(app, view_it, Access_Always)){
+
             Managed_Scope scope_it = view_get_managed_scope(app, view_it);
-            b32 *snap_mark_to_cursor =
-                scope_attachment(app, scope_it, view_snap_mark_to_cursor, b32);
-            if (*snap_mark_to_cursor){
+            b32 *snap_mark_to_cursor = scope_attachment(app, scope_it, view_snap_mark_to_cursor, b32);
+            b32 *request_snap_mark_to_cursor = scope_attachment(app, scope_it, view_request_snap_mark_to_cursor, b32);
+
+            if (*snap_mark_to_cursor && *request_snap_mark_to_cursor) {
                 i64 pos = view_get_cursor_pos(app, view_it);
                 view_set_mark(app, view_it, seek_pos(pos));
             }
+            *request_snap_mark_to_cursor = *snap_mark_to_cursor;
         }
-    }
+    // }
 }
 
 // BOTTOM

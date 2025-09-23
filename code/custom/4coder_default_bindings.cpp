@@ -63,7 +63,7 @@ CUSTOM_COMMAND_SIG(enter_normal_mode) {
   set_current_mapid(app, mapid_normal);
   // TODO(mdelgado): There is a way to set mark snapping. Manage these marks that way
   //  and undo it in visual mode
-  set_mark(app);
+  // set_mark(app);
   // NOTE(mdelgado): This changes the cursor to the rectangluar shape
   set_mode_to_original(app);
   enable_snap_to_cursor(app);
@@ -75,7 +75,7 @@ CUSTOM_COMMAND_SIG(enter_normal_mode) {
 
 CUSTOM_COMMAND_SIG(enter_insert_mode) {
   set_current_mapid(app, mapid_insert);
-  set_mark(app);
+  // set_mark(app);
   set_mode_to_notepad_like(app);
 
   enable_snap_to_cursor(app);
@@ -89,12 +89,12 @@ CUSTOM_COMMAND_SIG(enter_insert_mode) {
 
 CUSTOM_COMMAND_SIG(enter_visual_mode) {
   set_current_mapid(app, mapid_visual);
-  set_mark(app);
-  set_mode_to_original(app);
-  set_mark(app);
+  // set_mark(app);
+  // set_mark(app);
 
   disable_snap_to_cursor(app);
 
+  set_mode_to_original(app);
   active_color_table.arrays[ defcolor_cursor ].vals[ 0 ] = 0xffbb9af7;
   active_color_table.arrays[ defcolor_at_cursor ].vals[ 0 ] = 0xffa675ff;
   active_color_table.arrays[ defcolor_margin_active ].vals[ 0 ] = 0xffbb9af7;
@@ -103,6 +103,7 @@ CUSTOM_COMMAND_SIG(enter_visual_mode) {
 CUSTOM_COMMAND_SIG(enter_visual_line_mode) {
   enter_visual_mode(app);
   set_current_mapid(app, mapid_visual_line);
+
   seek_beginning_of_line(app);
   set_mark(app);
   seek_end_of_line(app);
@@ -139,7 +140,7 @@ CUSTOM_COMMAND_SIG(edit_entire_line) {
 
 CUSTOM_COMMAND_SIG(shared_move_up) {
   move_up(app);
-  set_mark(app);
+  // set_mark(app);
 }
 
 // TODO(mdelgado): These line moves work, but are kinda heavy
@@ -193,17 +194,17 @@ CUSTOM_COMMAND_SIG(visual_line_move_down) {
 
 CUSTOM_COMMAND_SIG(shared_move_down) {
   move_down(app);
-  set_mark(app);
+  // set_mark(app);
 }
 
 CUSTOM_COMMAND_SIG(shared_move_left) {
   move_left(app);
-  set_mark(app);
+  // set_mark(app);
 }
 
 CUSTOM_COMMAND_SIG(shared_move_right) {
   move_right(app);
-  set_mark(app);
+  // set_mark(app);
 }
 
 CUSTOM_COMMAND_SIG(insert_after_cursor) {
@@ -287,7 +288,7 @@ CUSTOM_COMMAND_SIG(change_range_case) {
 
 CUSTOM_COMMAND_SIG(write_text_auto_indent_and_move_mark) {
   write_text_and_auto_indent(app);
-  set_mark(app);
+  // set_mark(app);
 }
 
 CUSTOM_COMMAND_SIG(visual_delete_range) {
@@ -325,6 +326,17 @@ CUSTOM_COMMAND_SIG(noop) { }
 BUFFER_HOOK_SIG(custom_begin_buffer){
   default_begin_buffer(app, buffer_id);
   enter_normal_mode(app);
+
+  View_ID view = get_active_view(app, 0);
+  Buffer_ID buffer = view_get_buffer(app, view, 0);
+  Managed_Scope scope = buffer_get_managed_scope(app, buffer);
+  b32 *snap_mark_to_cursor = scope_attachment(app, scope, view_request_snap_mark_to_cursor, b32);
+  if (*snap_mark_to_cursor) {
+    request_enable_snap_to_cursor(app);
+  } else {
+    request_disable_snap_to_cursor(app);
+  }
+
   return 0;
 }
 

@@ -10,6 +10,7 @@ CUSTOM_ID(attachment, view_next_rewrite_loc);
 CUSTOM_ID(attachment, view_paste_index_loc);
 CUSTOM_ID(attachment, view_is_passive_loc);
 CUSTOM_ID(attachment, view_snap_mark_to_cursor);
+CUSTOM_ID(attachment, view_request_snap_mark_to_cursor);
 CUSTOM_ID(attachment, view_ui_data);
 CUSTOM_ID(attachment, view_highlight_range);
 CUSTOM_ID(attachment, view_highlight_buffer);

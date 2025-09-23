@@ -42,7 +42,6 @@ view_rewrite_loc = managed_id_declare(app, string_u8_litexpr("attachment"), stri
 view_next_rewrite_loc = managed_id_declare(app, string_u8_litexpr("attachment"), string_u8_litexpr("view_next_rewrite_loc"));
 view_paste_index_loc = managed_id_declare(app, string_u8_litexpr("attachment"), string_u8_litexpr("view_paste_index_loc"));
 view_is_passive_loc = managed_id_declare(app, string_u8_litexpr("attachment"), string_u8_litexpr("view_is_passive_loc"));
-view_snap_mark_to_cursor = managed_id_declare(app, string_u8_litexpr("attachment"), string_u8_litexpr("view_snap_mark_to_cursor"));
 view_request_snap_mark_to_cursor = managed_id_declare(app, string_u8_litexpr("attachment"), string_u8_litexpr("view_request_snap_mark_to_cursor"));
 view_ui_data = managed_id_declare(app, string_u8_litexpr("attachment"), string_u8_litexpr("view_ui_data"));
 view_highlight_range = managed_id_declare(app, string_u8_litexpr("attachment"), string_u8_litexpr("view_highlight_range"));

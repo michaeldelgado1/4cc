@@ -2153,9 +2153,19 @@ get_ranges_of_duplicate_keys(Arena *arena, i32 *keys, i32 stride, i32 count){
 }
 
 function void
+enable_snap_mark_to_cursor(Application_Links *app) {
+  snap_mark_to_cursor = true;
+}
+
+function void
+disable_snap_mark_to_cursor(Application_Links *app) {
+  snap_mark_to_cursor = false;
+}
+
+function void
 request_enable_snap_to_cursor(Application_Links *app, Managed_Scope scope) {
-  b32 *snap_mark_to_cursor = scope_attachment(app, scope, view_request_snap_mark_to_cursor, b32);
-  *snap_mark_to_cursor = true;
+  b32 *request_snap_mark_to_cursor = scope_attachment(app, scope, view_request_snap_mark_to_cursor, b32);
+  *request_snap_mark_to_cursor = true;
 }
 
 function void
@@ -2172,36 +2182,17 @@ request_enable_snap_to_cursor(Application_Links *app) {
 }
 
 function void
-enable_snap_to_cursor(Application_Links *app) {
-  View_ID view = get_active_view(app, 0);
-  Buffer_ID buffer = view_get_buffer(app, view, 0);
-  Managed_Scope scope = buffer_get_managed_scope(app, buffer);
-
-  b32 *snap_mark_to_cursor = scope_attachment(app, scope, view_snap_mark_to_cursor, b32);
-  *snap_mark_to_cursor = true;
-}
-
-function void
 request_disable_snap_to_cursor(Application_Links *app, View_ID view) {
   Buffer_ID buffer = view_get_buffer(app, view, 0);
   Managed_Scope scope = buffer_get_managed_scope(app, buffer);
-  b32 *snap_mark_to_cursor = scope_attachment(app, scope, view_request_snap_mark_to_cursor, b32);
-  *snap_mark_to_cursor = false;
+  b32 *request_snap_mark_to_cursor = scope_attachment(app, scope, view_request_snap_mark_to_cursor, b32);
+  *request_snap_mark_to_cursor = false;
 }
 
 function void
 request_disable_snap_to_cursor(Application_Links *app) {
   View_ID view = get_active_view(app, 0);
   request_disable_snap_to_cursor(app, view);
-}
-
-function void
-disable_snap_to_cursor(Application_Links *app) {
-  View_ID view = get_active_view(app, 0);
-  Buffer_ID buffer = view_get_buffer(app, view, 0);
-  Managed_Scope scope = buffer_get_managed_scope(app, buffer);
-  b32 *snap_mark_to_cursor = scope_attachment(app, scope, view_snap_mark_to_cursor, b32);
-  *snap_mark_to_cursor = false;
 }
 
 function void
@@ -2239,12 +2230,12 @@ if_view_has_highlighted_range_delete_range(Application_Links *app, View_ID view_
 function void
 begin_notepad_mode(Application_Links *app){
     fcoder_mode = FCoderMode_NotepadLike;
-    for (View_ID view = get_view_next(app, 0, Access_Always);
-         view != 0;
-         view = get_view_next(app, view, Access_Always)){
-        i64 pos = view_get_cursor_pos(app, view);
-        view_set_mark(app, view, seek_pos(pos));
-    }
+    // for (View_ID view = get_view_next(app, 0, Access_Always);
+    //      view != 0;
+    //      view = get_view_next(app, view, Access_Always)){
+    //     i64 pos = view_get_cursor_pos(app, view);
+    //     view_set_mark(app, view, seek_pos(pos));
+    // }
 }
 
 ////////////////////////////////

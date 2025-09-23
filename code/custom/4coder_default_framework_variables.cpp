@@ -9,7 +9,6 @@ CUSTOM_ID(attachment, view_rewrite_loc);
 CUSTOM_ID(attachment, view_next_rewrite_loc);
 CUSTOM_ID(attachment, view_paste_index_loc);
 CUSTOM_ID(attachment, view_is_passive_loc);
-CUSTOM_ID(attachment, view_snap_mark_to_cursor);
 CUSTOM_ID(attachment, view_request_snap_mark_to_cursor);
 CUSTOM_ID(attachment, view_ui_data);
 CUSTOM_ID(attachment, view_highlight_range);
@@ -78,6 +77,8 @@ enum{
     FCoderMode_NotepadLike = 1,
 };
 global i32 fcoder_mode = FCoderMode_Original;
+
+global b32 snap_mark_to_cursor = false;
 
 global ID_Pos_Jump_Location prev_location = {};
 

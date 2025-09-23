@@ -66,7 +66,7 @@ CUSTOM_COMMAND_SIG(enter_normal_mode) {
   // set_mark(app);
   // NOTE(mdelgado): This changes the cursor to the rectangluar shape
   set_mode_to_original(app);
-  enable_snap_to_cursor(app);
+  enable_snap_mark_to_cursor(app);
 
   active_color_table.arrays[ defcolor_cursor ].vals[ 0 ] = 0xff7aa2f7;
   active_color_table.arrays[ defcolor_at_cursor ].vals[ 0 ] = 0xff4b7be3;
@@ -78,7 +78,7 @@ CUSTOM_COMMAND_SIG(enter_insert_mode) {
   // set_mark(app);
   set_mode_to_notepad_like(app);
 
-  enable_snap_to_cursor(app);
+  enable_snap_mark_to_cursor(app);
 
   // TODO(mdelgado): I'd rather revert back to the default color scheme in insert mode
   //  I'm not sure how I pull that in here
@@ -92,7 +92,7 @@ CUSTOM_COMMAND_SIG(enter_visual_mode) {
   // set_mark(app);
   // set_mark(app);
 
-  disable_snap_to_cursor(app);
+  disable_snap_mark_to_cursor(app);
 
   set_mode_to_original(app);
   active_color_table.arrays[ defcolor_cursor ].vals[ 0 ] = 0xffbb9af7;
@@ -108,7 +108,7 @@ CUSTOM_COMMAND_SIG(enter_visual_line_mode) {
   set_mark(app);
   seek_end_of_line(app);
 
-  disable_snap_to_cursor(app);
+  disable_snap_mark_to_cursor(app);
 
   active_color_table.arrays[ defcolor_cursor ].vals[ 0 ] = 0xffbb9af7;
   active_color_table.arrays[ defcolor_at_cursor ].vals[ 0 ] = 0xffa675ff;
@@ -326,16 +326,6 @@ CUSTOM_COMMAND_SIG(noop) { }
 BUFFER_HOOK_SIG(custom_begin_buffer){
   default_begin_buffer(app, buffer_id);
   enter_normal_mode(app);
-
-  View_ID view = get_active_view(app, 0);
-  Buffer_ID buffer = view_get_buffer(app, view, 0);
-  Managed_Scope scope = buffer_get_managed_scope(app, buffer);
-  b32 *snap_mark_to_cursor = scope_attachment(app, scope, view_request_snap_mark_to_cursor, b32);
-  if (*snap_mark_to_cursor) {
-    request_enable_snap_to_cursor(app);
-  } else {
-    request_disable_snap_to_cursor(app);
-  }
 
   return 0;
 }

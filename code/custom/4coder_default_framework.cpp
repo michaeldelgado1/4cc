@@ -1080,15 +1080,13 @@ function void
 default_pre_command(Application_Links *app, Managed_Scope scope){
     Rewrite_Type *next_rewrite = scope_attachment(app, scope, view_next_rewrite_loc, Rewrite_Type);
     *next_rewrite = Rewrite_None;
-    // for (View_ID view_it = get_view_next(app, 0, Access_Always);
-    //      view_it != 0;
-    //      view_it = get_view_next(app, view_it, Access_Always)){
-    //     if (snap_mark_to_cursor) {
-    //       request_enable_snap_to_cursor(app, view_it);
-    //     } else {
-    //       request_disable_snap_to_cursor(app, view_it);
-    //     }
-    // }
+    for (View_ID view_it = get_view_next(app, 0, Access_Always);
+         view_it != 0;
+         view_it = get_view_next(app, view_it, Access_Always)){
+        Managed_Scope scope_it = view_get_managed_scope(app, view_it);
+        b32 *request_snap_mark_to_cursor = scope_attachment(app, scope_it, view_request_snap_mark_to_cursor, b32);
+        *request_snap_mark_to_cursor = snap_mark_to_cursor;
+    }
 }
 
 function void
@@ -1102,17 +1100,17 @@ default_post_command(Application_Links *app, Managed_Scope scope){
     }
 
     for (View_ID view_it = get_view_next(app, 0, Access_Always);
-         view_it != 0;
-         view_it = get_view_next(app, view_it, Access_Always)){
+     view_it != 0;
+     view_it = get_view_next(app, view_it, Access_Always)){
 
-        Managed_Scope scope_it = view_get_managed_scope(app, view_it);
-        b32 *request_snap_mark_to_cursor = scope_attachment(app, scope_it, view_request_snap_mark_to_cursor, b32);
+      Managed_Scope scope_it = view_get_managed_scope(app, view_it);
+      b32 *request_snap_mark_to_cursor = scope_attachment(app, scope_it, view_request_snap_mark_to_cursor, b32);
 
-        if (snap_mark_to_cursor && *request_snap_mark_to_cursor) {
-            i64 pos = view_get_cursor_pos(app, view_it);
-            view_set_mark(app, view_it, seek_pos(pos));
-        }
-        *request_snap_mark_to_cursor = snap_mark_to_cursor;
+      if (snap_mark_to_cursor && *request_snap_mark_to_cursor) {
+          i64 pos = view_get_cursor_pos(app, view_it);
+          view_set_mark(app, view_it, seek_pos(pos));
+      }
+      *request_snap_mark_to_cursor = snap_mark_to_cursor;
     }
 }
 

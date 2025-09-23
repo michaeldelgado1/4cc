@@ -2155,6 +2155,13 @@ get_ranges_of_duplicate_keys(Arena *arena, i32 *keys, i32 stride, i32 count){
 function void
 enable_snap_mark_to_cursor(Application_Links *app) {
   snap_mark_to_cursor = true;
+  for (View_ID view_it = get_view_next(app, 0, Access_Always);
+       view_it != 0;
+       view_it = get_view_next(app, view_it, Access_Always)){
+
+      i64 pos = view_get_cursor_pos(app, view_it);
+      view_set_mark(app, view_it, seek_pos(pos));
+  }
 }
 
 function void
@@ -2207,6 +2214,7 @@ no_mark_snap_to_cursor_if_shift(Application_Links *app, View_ID view_id){
 function b32
 view_has_highlighted_range(Application_Links *app, View_ID view){
     b32 result = false;
+    // TODO(mdelgado): See if I can swap this to snap_mark_to_cursor
     if (fcoder_mode == FCoderMode_NotepadLike){
         i64 pos = view_get_cursor_pos(app, view);
         i64 mark = view_get_mark_pos(app, view);

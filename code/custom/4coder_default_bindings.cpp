@@ -72,7 +72,6 @@ CUSTOM_COMMAND_SIG(enter_normal_mode) {
 
 CUSTOM_COMMAND_SIG(enter_insert_mode) {
   set_current_mapid(app, mapid_insert);
-  // set_mark(app);
   set_mode_to_notepad_like(app);
 
   enable_snap_mark_to_cursor(app);
@@ -347,9 +346,11 @@ set_up_normal_mode_mappings(Mapping *mapping) {
   Bind(move_up, KeyCode_K);
   Bind(move_left, KeyCode_H);
   Bind(move_right, KeyCode_L);
-  // TODO(mdelgado): This doesn't work with bindings that do more
-  //  than one thing. For example change_range_case. It also doesn't
-  //  set the mark back at cursor position
+  /* TODO(mdelgado): This can be wrong when a command nests several
+       commands. It will mostly just undo the nested commands rather
+       than the entire parent command. Figure out if I can get this
+       thing to do what I want.
+  */
   Bind(undo, KeyCode_U);
   Bind(redo, KeyCode_R, KeyCode_Control);
   Bind(search, KeyCode_ForwardSlash);

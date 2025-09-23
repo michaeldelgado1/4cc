@@ -61,9 +61,6 @@ get_selected_chars(Application_Links *app) {
 // NOTE(mdelgado): Switch Modes
 CUSTOM_COMMAND_SIG(enter_normal_mode) {
   set_current_mapid(app, mapid_normal);
-  // TODO(mdelgado): There is a way to set mark snapping. Manage these marks that way
-  //  and undo it in visual mode
-  // set_mark(app);
   // NOTE(mdelgado): This changes the cursor to the rectangluar shape
   set_mode_to_original(app);
   enable_snap_mark_to_cursor(app);
@@ -89,10 +86,7 @@ CUSTOM_COMMAND_SIG(enter_insert_mode) {
 
 CUSTOM_COMMAND_SIG(enter_visual_mode) {
   set_current_mapid(app, mapid_visual);
-  // set_mark(app);
-  // set_mark(app);
-
-  disable_snap_mark_to_cursor(app);
+  disable_snap_mark_to_cursor();
 
   set_mode_to_original(app);
   active_color_table.arrays[ defcolor_cursor ].vals[ 0 ] = 0xffbb9af7;
@@ -107,8 +101,6 @@ CUSTOM_COMMAND_SIG(enter_visual_line_mode) {
   seek_beginning_of_line(app);
   set_mark(app);
   seek_end_of_line(app);
-
-  disable_snap_mark_to_cursor(app);
 
   active_color_table.arrays[ defcolor_cursor ].vals[ 0 ] = 0xffbb9af7;
   active_color_table.arrays[ defcolor_at_cursor ].vals[ 0 ] = 0xffa675ff;
@@ -482,12 +474,18 @@ set_up_visual_line_mode_mappings(Mapping *mapping) {
   SelectMapping(&framework_mapping);
 
   SelectMap(mapid_visual_line);
-  ParentMap(mapid_visual);
+  ParentMap(mapid_shared);
 
   Bind(visual_line_move_down, KeyCode_J);
   Bind(visual_line_move_up, KeyCode_K);
   Bind(noop, KeyCode_H);
   Bind(noop, KeyCode_L);
+  Bind(goto_end_of_file, KeyCode_G, KeyCode_Shift);
+  Bind(change_range_case, KeyCode_Tick, KeyCode_Shift);
+  Bind(visual_delete_range, KeyCode_D);
+  Bind(visual_delete_range, KeyCode_X);
+  Bind(visual_edit_range, KeyCode_C);
+  Bind(visual_edit_range, KeyCode_S);
 }
 
 void

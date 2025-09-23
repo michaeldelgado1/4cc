@@ -79,6 +79,7 @@ enum{
 global i32 fcoder_mode = FCoderMode_Original;
 
 global b32 snap_mark_to_cursor = false;
+global b32 request_snap_mark_to_cursor = false;
 
 global ID_Pos_Jump_Location prev_location = {};
 

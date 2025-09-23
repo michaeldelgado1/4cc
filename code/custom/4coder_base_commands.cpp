@@ -206,7 +206,7 @@ CUSTOM_DOC("Centers the view vertically on the line on which the cursor sits.")
     scroll.target.line_number = cursor.line;
     scroll.target.pixel_shift.y = -view_height*0.5f;
     view_set_buffer_scroll(app, view, scroll, SetBufferScroll_SnapCursorIntoView);
-    request_disable_snap_to_cursor(app, view);
+    request_disable_snap_mark_to_cursor();
 }
 
 CUSTOM_COMMAND_SIG(left_adjust_view)
@@ -219,7 +219,7 @@ CUSTOM_DOC("Sets the left size of the view near the x position of the cursor.")
     Buffer_Scroll scroll = view_get_buffer_scroll(app, view);
     scroll.target.pixel_shift.x = clamp_bot(0.f, p.x - 30.f);
     view_set_buffer_scroll(app, view, scroll, SetBufferScroll_SnapCursorIntoView);
-    request_disable_snap_to_cursor(app, view);
+    request_disable_snap_mark_to_cursor();
 }
 
 CUSTOM_COMMAND_SIG(click_set_cursor_and_mark)
@@ -239,7 +239,7 @@ CUSTOM_DOC("Sets the cursor position to the mouse position.")
     Mouse_State mouse = get_mouse_state(app);
     i64 pos = view_pos_from_xy(app, view, V2f32(mouse.p));
     view_set_cursor_and_preferred_x(app, view, seek_pos(pos));
-    request_disable_snap_to_cursor(app, view);
+    request_disable_snap_mark_to_cursor();
 }
 
 CUSTOM_COMMAND_SIG(click_set_cursor_if_lbutton)
@@ -251,7 +251,7 @@ CUSTOM_DOC("If the mouse left button is pressed, sets the cursor position to the
         i64 pos = view_pos_from_xy(app, view, V2f32(mouse.p));
         view_set_cursor_and_preferred_x(app, view, seek_pos(pos));
     }
-    request_disable_snap_to_cursor(app, view);
+    request_disable_snap_mark_to_cursor();
     set_next_rewrite(app, view, Rewrite_NoChange);
 }
 
@@ -262,7 +262,7 @@ CUSTOM_DOC("Sets the mark position to the mouse position.")
     Mouse_State mouse = get_mouse_state(app);
     i64 pos = view_pos_from_xy(app, view, V2f32(mouse.p));
     view_set_mark(app, view, seek_pos(pos));
-    request_disable_snap_to_cursor(app, view);
+    request_disable_snap_mark_to_cursor();
 }
 
 CUSTOM_COMMAND_SIG(mouse_wheel_scroll)
@@ -276,7 +276,7 @@ CUSTOM_DOC("Reads the scroll wheel value from the mouse state and scrolls accord
         view_set_buffer_scroll(app, view, scroll, SetBufferScroll_SnapCursorIntoView);
     }
     if (mouse.l){
-        request_disable_snap_to_cursor(app, view);
+        request_disable_snap_mark_to_cursor();
     }
 }
 
@@ -548,7 +548,7 @@ CUSTOM_DOC("Puts the cursor at the top of the file, and the mark at the bottom o
     i32 buffer_size = (i32)buffer_get_size(app, buffer);
     view_set_cursor_and_preferred_x(app, view, seek_pos(0));
     view_set_mark(app, view, seek_pos(buffer_size));
-    request_disable_snap_to_cursor(app, view);
+    request_disable_snap_mark_to_cursor();
 }
 
 ////////////////////////////////

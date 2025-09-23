@@ -131,11 +131,6 @@ CUSTOM_COMMAND_SIG(edit_entire_line) {
   edit_to_end_of_line(app);
 }
 
-CUSTOM_COMMAND_SIG(shared_move_up) {
-  move_up(app);
-  // set_mark(app);
-}
-
 // TODO(mdelgado): These line moves work, but are kinda heavy
 CUSTOM_COMMAND_SIG(visual_line_move_up) {
   move_up(app);
@@ -185,21 +180,6 @@ CUSTOM_COMMAND_SIG(visual_line_move_down) {
   }
 }
 
-CUSTOM_COMMAND_SIG(shared_move_down) {
-  move_down(app);
-  // set_mark(app);
-}
-
-CUSTOM_COMMAND_SIG(shared_move_left) {
-  move_left(app);
-  // set_mark(app);
-}
-
-CUSTOM_COMMAND_SIG(shared_move_right) {
-  move_right(app);
-  // set_mark(app);
-}
-
 CUSTOM_COMMAND_SIG(insert_after_cursor) {
   View_ID view = get_active_view(app, 0);
   i64 cursor = view_get_cursor_pos(app, view);
@@ -212,7 +192,7 @@ CUSTOM_COMMAND_SIG(insert_after_cursor) {
 
   u8 curChar = underCursor.size ? underCursor.str[0] : 0;
   if (curChar != '\n' && curChar != 0) {
-    shared_move_right(app);
+    move_right(app);
   }
 
   enter_insert_mode(app);
@@ -277,11 +257,6 @@ CUSTOM_COMMAND_SIG(change_range_case) {
   buffer_replace_range(app, buffer, range, selected);
   view_set_cursor_and_preferred_x(app, view, seek_pos(pos));
   enter_normal_mode(app);
-}
-
-CUSTOM_COMMAND_SIG(write_text_auto_indent_and_move_mark) {
-  write_text_and_auto_indent(app);
-  // set_mark(app);
 }
 
 CUSTOM_COMMAND_SIG(visual_delete_range) {
@@ -368,10 +343,10 @@ set_up_normal_mode_mappings(Mapping *mapping) {
   Bind(insert_at_end_of_line, KeyCode_A, KeyCode_Shift);
   Bind(create_new_line_below_and_insert, KeyCode_O);
   Bind(create_new_line_above_and_insert, KeyCode_O, KeyCode_Shift);
-  Bind(shared_move_down, KeyCode_J);
-  Bind(shared_move_up, KeyCode_K);
-  Bind(shared_move_left, KeyCode_H);
-  Bind(shared_move_right, KeyCode_L);
+  Bind(move_down, KeyCode_J);
+  Bind(move_up, KeyCode_K);
+  Bind(move_left, KeyCode_H);
+  Bind(move_right, KeyCode_L);
   // TODO(mdelgado): This doesn't work with bindings that do more
   //  than one thing. For example change_range_case. It also doesn't
   //  set the mark back at cursor position
@@ -412,15 +387,15 @@ set_up_insert_mode_mappings(Mapping *mapping) {
 
   SelectMap(mapid_insert);
   ParentMap(mapid_shared);
-  BindTextInput(write_text_auto_indent_and_move_mark);
+  BindTextInput(write_text_and_auto_indent);
 
   // NOTE(mdelgado): Some semi basic editor commands for insert mode
   Bind(delete_char, KeyCode_Delete);
   Bind(backspace_char, KeyCode_Backspace);
-  Bind(shared_move_up, KeyCode_Up);
-  Bind(shared_move_down, KeyCode_Down);
-  Bind(shared_move_left, KeyCode_Left);
-  Bind(shared_move_right, KeyCode_Right);
+  Bind(move_up, KeyCode_Up);
+  Bind(move_down, KeyCode_Down);
+  Bind(move_left, KeyCode_Left);
+  Bind(move_right, KeyCode_Right);
   Bind(move_up, KeyCode_Up, KeyCode_Shift);
   Bind(move_down, KeyCode_Down, KeyCode_Shift);
   Bind(move_left, KeyCode_Left, KeyCode_Shift);

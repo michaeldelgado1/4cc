@@ -176,7 +176,7 @@ CUSTOM_DOC("If the previous command was paste or paste_next, replaces the paste 
         Rewrite_Type *rewrite = scope_attachment(app, scope, view_rewrite_loc, Rewrite_Type);
         if (rewrite != 0){
             if (*rewrite == Rewrite_Paste && !new_clip){
-                no_mark_snap_to_cursor(app, view);
+                disable_snap_to_cursor(app, scope);
                 
                 set_next_rewrite(app, view, Rewrite_Paste);
                 

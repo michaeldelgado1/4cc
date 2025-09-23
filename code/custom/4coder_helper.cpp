@@ -2151,13 +2151,18 @@ get_ranges_of_duplicate_keys(Arena *arena, i32 *keys, i32 stride, i32 count){
     pop_array(arena, Range_i32, count - result.count);
     return(result);
 }
+function void
+enable_snap_to_cursor(Application_Links *app, Managed_Scope scope) {
+  b32 *snap_mark_to_cursor = scope_attachment(app, scope, view_snap_mark_to_cursor, b32);
+  *snap_mark_to_cursor = true;
+}
+
 
 function void
 enable_snap_to_cursor(Application_Links *app, View_ID view) {
   Buffer_ID buffer = view_get_buffer(app, view, 0);
   Managed_Scope scope = buffer_get_managed_scope(app, buffer);
-  b32 *snap_mark_to_cursor = scope_attachment(app, scope, view_snap_mark_to_cursor, b32);
-  *snap_mark_to_cursor = true;
+  enable_snap_to_cursor(app, scope);
 }
 
 function void
@@ -2180,25 +2185,12 @@ disable_snap_to_cursor(Application_Links *app) {
   disable_snap_to_cursor(app, view);
 }
 
-// function void
-// no_mark_snap_to_cursor(Application_Links *app, Managed_Scope view_scope){
-//     b32 *snap_to_cursor = scope_attachment(app, view_scope, view_snap_mark_to_cursor, b32);
-//     *snap_to_cursor = false;
-// }
-//
-function void
-no_mark_snap_to_cursor(Application_Links *app, View_ID view){
-  disable_snap_to_cursor(app, view);
-    // Managed_Scope scope = view_get_managed_scope(app, view);
-    // no_mark_snap_to_cursor(app, scope);
-}
-
 function void
 no_mark_snap_to_cursor_if_shift(Application_Links *app, View_ID view_id){
     Scratch_Block scratch(app);
     Input_Modifier_Set mods = system_get_keyboard_modifiers(scratch);
     if (has_modifier(&mods, KeyCode_Shift)){
-        no_mark_snap_to_cursor(app, view_id);
+        disable_snap_to_cursor(app, view_id);
     }
 }
 
@@ -2467,7 +2459,7 @@ select_scope(Application_Links *app, View_ID view, Range_i64 range){
     view_set_cursor_and_preferred_x(app, view, seek_pos(range.first));
     view_set_mark(app, view, seek_pos(range.end));
     view_look_at_region(app, view, range.first, range.end);
-    no_mark_snap_to_cursor(app, view);
+    disable_snap_to_cursor(app, view);
 }
 
 ////////////////////////////////

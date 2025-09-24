@@ -80,6 +80,38 @@ get_char_under_cursor(Application_Links *app) {
   return rangeString.str[0];
 }
 
+b32
+select_inner_word(Application_Links *app) {
+  // TODO(mdelgado): This handles most cases. Technically vim
+  //  will handle all contiguous whitespace. It also doesn't deal
+  //  with newlines
+  u8 underCursor = get_char_under_cursor(app);
+  if (character_is_whitespace(underCursor)) {
+    set_mark(app);
+    move_right(app);
+    return true;
+  } else if (underCursor == 0) {
+    return false;
+  }
+
+  View_ID view = get_active_view(app, 0);
+  i64 startingPos = view_get_cursor_pos(app, view);
+
+  move_left(app);
+  i64 nextPos = view_get_cursor_pos(app, view);
+  if (startingPos > nextPos) {
+    underCursor = get_char_under_cursor(app);
+    move_right(app);
+    if (!character_is_whitespace(underCursor)) {
+      move_left_whitespace_boundary(app);
+    }
+  }
+
+  set_mark(app);
+  move_right_whitespace_boundary(app);
+  return true;
+}
+
 // NOTE(mdelgado): Switch Modes
 CUSTOM_COMMAND_SIG(enter_normal_mode) {
   set_current_mapid(app, mapid_normal);
@@ -314,37 +346,10 @@ CUSTOM_COMMAND_SIG(delete_word_to_normal_mode) {
 }
 
 CUSTOM_COMMAND_SIG(delete_inner_word_to_normal_mode) {
-  // TODO(mdelgado): This handles most cases. Technically vim
-  //  will delete all contiguous whitespace. It also doesn't delete
-  //  newlines
-  u8 underCursor = get_char_under_cursor(app);
-  if (character_is_whitespace(underCursor)) {
-    delete_char(app);
-    // TODO(mdelgado): This is required so we don't get trapped in delete_inner mode
-    //  There maybe a better way to do this.
-    enter_normal_mode(app);
-    return;
-  } else if (underCursor == 0) {
-    enter_normal_mode(app);
-    return;
+  if (select_inner_word(app)) {
+    delete_range(app);
   }
 
-  View_ID view = get_active_view(app, 0);
-  i64 startingPos = view_get_cursor_pos(app, view);
-
-  move_left(app);
-  i64 nextPos = view_get_cursor_pos(app, view);
-  if (startingPos > nextPos) {
-    underCursor = get_char_under_cursor(app);
-    move_right(app);
-    if (!character_is_whitespace(underCursor)) {
-      move_left_whitespace_boundary(app);
-    }
-  }
-
-  set_mark(app);
-  move_right_whitespace_boundary(app);
-  delete_range(app);
   enter_normal_mode(app);
 }
 

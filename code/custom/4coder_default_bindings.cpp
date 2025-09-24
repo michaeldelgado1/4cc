@@ -59,6 +59,27 @@ get_selected_chars(Application_Links *app) {
   return get_chars_in_range(app, buffer, range);
 }
 
+u8
+get_char_under_cursor(Application_Links *app) {
+  View_ID view = get_active_view(app, 0);
+  Buffer_ID buffer = view_get_buffer(app, view, 0);
+
+  Range_i64 range = { };
+  range.start = view_get_cursor_pos(app, view);
+  range.end = range.start + 1;
+
+  String_Const_u8 rangeString = get_chars_in_range(app, buffer, range);
+  if (rangeString.size > 1) {
+    Scratch_Block scratch(app);
+    String_Const_u8 msg = push_stringf(scratch, "Char under cursor was larger than size One:%.*s - Size: %d\n", string_expand(rangeString), rangeString.size);
+    print_message(app, msg);
+  } else if (rangeString.size < 1) {
+    return 0;
+  }
+
+  return rangeString.str[0];
+}
+
 // NOTE(mdelgado): Switch Modes
 CUSTOM_COMMAND_SIG(enter_normal_mode) {
   set_current_mapid(app, mapid_normal);
@@ -293,11 +314,34 @@ CUSTOM_COMMAND_SIG(delete_word_to_normal_mode) {
 }
 
 CUSTOM_COMMAND_SIG(delete_inner_word_to_normal_mode) {
-  // TODO(mdelgado): There's a bug that appears when you
-  //  are at the first letter of the word. You actually
-  //  delete the previous word instead of deleting the
-  //  word under the cursor.
-  move_left_whitespace_boundary(app);
+  // TODO(mdelgado): This handles most cases. Technically vim
+  //  will delete all contiguous whitespace. It also doesn't delete
+  //  newlines
+  u8 underCursor = get_char_under_cursor(app);
+  if (character_is_whitespace(underCursor)) {
+    delete_char(app);
+    // TODO(mdelgado): This is required so we don't get trapped in delete_inner mode
+    //  There maybe a better way to do this.
+    enter_normal_mode(app);
+    return;
+  } else if (underCursor == 0) {
+    enter_normal_mode(app);
+    return;
+  }
+
+  View_ID view = get_active_view(app, 0);
+  i64 startingPos = view_get_cursor_pos(app, view);
+
+  move_left(app);
+  i64 nextPos = view_get_cursor_pos(app, view);
+  if (startingPos > nextPos) {
+    underCursor = get_char_under_cursor(app);
+    move_right(app);
+    if (!character_is_whitespace(underCursor)) {
+      move_left_whitespace_boundary(app);
+    }
+  }
+
   set_mark(app);
   move_right_whitespace_boundary(app);
   delete_range(app);

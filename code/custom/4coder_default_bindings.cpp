@@ -22,6 +22,7 @@ String_ID mapid_visual_line;
 
 // NOTE(mdelgado): Key combo maps
 String_ID mapid_delete;
+String_ID mapid_delete_inner;
 
 void
 set_current_mapid(Application_Links *app, Command_Map_ID mapid) {
@@ -110,6 +111,10 @@ CUSTOM_COMMAND_SIG(enter_visual_line_mode) {
 
 CUSTOM_COMMAND_SIG(start_delete_combo) {
   set_current_mapid(app, mapid_delete);
+}
+
+CUSTOM_COMMAND_SIG(start_delete_inner_combo) {
+  set_current_mapid(app, mapid_delete_inner);
 }
 
 // NOTE(mdelgado): Editing
@@ -284,6 +289,18 @@ CUSTOM_COMMAND_SIG(delete_line_to_normal_mode) {
 CUSTOM_COMMAND_SIG(delete_word_to_normal_mode) {
   // TODO(mdelgado): This doesn't work correctly with whitespace chars
   delete_alpha_numeric_boundary(app);
+  enter_normal_mode(app);
+}
+
+CUSTOM_COMMAND_SIG(delete_inner_word_to_normal_mode) {
+  // TODO(mdelgado): There's a bug that appears when you
+  //  are at the first letter of the word. You actually
+  //  delete the previous word instead of deleting the
+  //  word under the cursor.
+  move_left_whitespace_boundary(app);
+  set_mark(app);
+  move_right_whitespace_boundary(app);
+  delete_range(app);
   enter_normal_mode(app);
 }
 
@@ -473,6 +490,18 @@ set_up_delete_combos(Mapping *mapping) {
 
   Bind(delete_line_to_normal_mode, KeyCode_D);
   Bind(delete_word_to_normal_mode, KeyCode_W);
+  Bind(start_delete_inner_combo, KeyCode_I);
+}
+
+void
+set_up_delete_inner_combos(Mapping *mapping) {
+  MappingScope();
+  SelectMapping(mapping);
+
+  SelectMap(mapid_delete_inner);
+  ParentMap(mapid_shared);
+
+  Bind(delete_inner_word_to_normal_mode, KeyCode_W);
 }
 
 // TODO(mdelgado): I'd like to avoid updating this function,
@@ -503,6 +532,7 @@ custom_layer_init(Application_Links *app){
   mapid_visual_line = vars_save_string_lit("mapid_visual_line");
 
   mapid_delete = vars_save_string_lit("mapid_delete");
+  mapid_delete_inner = vars_save_string_lit("mapid_delete_inner");
 
 #if OS_MAC
     setup_mac_mapping(&framework_mapping, global_map_id, file_map_id, code_map_id);
@@ -519,6 +549,7 @@ custom_layer_init(Application_Links *app){
 
   // NOTE(mdelgad): Multi Key Combos
   set_up_delete_combos(&framework_mapping); 
+  set_up_delete_inner_combos(&framework_mapping); 
 
   MappingScope();
   SelectMapping(&framework_mapping);

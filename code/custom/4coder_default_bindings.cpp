@@ -25,6 +25,7 @@ String_ID mapid_delete;
 String_ID mapid_delete_inner;
 
 String_ID mapid_cut;
+String_ID mapid_cut_inner;
 
 // NOTE(mdelgado): Helper Functions
 void
@@ -173,12 +174,12 @@ CUSTOM_COMMAND_SIG(start_delete_inner_combo) {
   set_current_mapid(app, mapid_delete_inner);
 }
 
-CUSTOM_COMMAND_SIG(start_cut_inner_combo) {
-  set_current_mapid(app, mapid_delete_inner);
-}
-
 CUSTOM_COMMAND_SIG(start_cut_combo) {
   set_current_mapid(app, mapid_cut);
+}
+
+CUSTOM_COMMAND_SIG(start_cut_inner_combo) {
+  set_current_mapid(app, mapid_cut_inner);
 }
 
 // NOTE(mdelgado): Editing
@@ -372,6 +373,14 @@ CUSTOM_COMMAND_SIG(cut_line_to_insert_mode) {
 CUSTOM_COMMAND_SIG(cut_word_to_insert_mode) {
   // TODO(mdelgado): This doesn't work correctly with whitespace chars
   delete_alpha_numeric_boundary(app);
+  enter_insert_mode(app);
+}
+
+CUSTOM_COMMAND_SIG(cut_inner_word_to_insert_mode) {
+  if (select_inner_word(app)) {
+    delete_range(app);
+  }
+
   enter_insert_mode(app);
 }
 
@@ -586,7 +595,18 @@ set_up_cut_combos(Mapping *mapping) {
 
   Bind(cut_line_to_insert_mode, KeyCode_C);
   Bind(cut_word_to_insert_mode, KeyCode_W);
-  // Bind(start_cut_inner_combo, KeyCode_I);
+  Bind(start_cut_inner_combo, KeyCode_I);
+}
+
+void
+set_up_cut_inner_combos(Mapping *mapping) {
+  MappingScope();
+  SelectMapping(mapping);
+
+  SelectMap(mapid_cut_inner);
+  ParentMap(mapid_shared);
+
+  Bind(cut_inner_word_to_insert_mode, KeyCode_W);
 }
 
 // TODO(mdelgado): I'd like to avoid updating this function,
@@ -620,7 +640,7 @@ custom_layer_init(Application_Links *app){
   mapid_delete_inner = vars_save_string_lit("mapid_delete_inner");
 
   mapid_cut = vars_save_string_lit("mapid_cut");
-  // mapid_cut_inner = vars_save_string_lit("mapid_cut_inner");
+  mapid_cut_inner = vars_save_string_lit("mapid_cut_inner");
 
 #if OS_MAC
     setup_mac_mapping(&framework_mapping, global_map_id, file_map_id, code_map_id);
@@ -640,6 +660,7 @@ custom_layer_init(Application_Links *app){
   set_up_delete_inner_combos(&framework_mapping); 
 
   set_up_cut_combos(&framework_mapping);
+  set_up_cut_inner_combos(&framework_mapping); 
 
   // NOTE(mdelgado): Mapping what's left outside of vim bindings
   MappingScope();

@@ -24,6 +24,9 @@ String_ID mapid_visual_line;
 String_ID mapid_delete;
 String_ID mapid_delete_inner;
 
+String_ID mapid_cut;
+
+// NOTE(mdelgado): Helper Functions
 void
 set_current_mapid(Application_Links *app, Command_Map_ID mapid) {
   View_ID view = get_active_view(app, 0);
@@ -168,6 +171,14 @@ CUSTOM_COMMAND_SIG(start_delete_combo) {
 
 CUSTOM_COMMAND_SIG(start_delete_inner_combo) {
   set_current_mapid(app, mapid_delete_inner);
+}
+
+CUSTOM_COMMAND_SIG(start_cut_inner_combo) {
+  set_current_mapid(app, mapid_delete_inner);
+}
+
+CUSTOM_COMMAND_SIG(start_cut_combo) {
+  set_current_mapid(app, mapid_cut);
 }
 
 // NOTE(mdelgado): Editing
@@ -353,6 +364,17 @@ CUSTOM_COMMAND_SIG(delete_inner_word_to_normal_mode) {
   enter_normal_mode(app);
 }
 
+CUSTOM_COMMAND_SIG(cut_line_to_insert_mode) {
+  delete_line(app);
+  enter_insert_mode(app);
+}
+
+CUSTOM_COMMAND_SIG(cut_word_to_insert_mode) {
+  // TODO(mdelgado): This doesn't work correctly with whitespace chars
+  delete_alpha_numeric_boundary(app);
+  enter_insert_mode(app);
+}
+
 CUSTOM_COMMAND_SIG(noop) { }
 
 // NOTE(mdelgado): Hooks
@@ -445,6 +467,7 @@ set_up_normal_mode_mappings(Mapping *mapping) {
   Bind(seek_end_of_line, KeyCode_4, KeyCode_Shift);
   Bind(change_range_case, KeyCode_Tick, KeyCode_Shift);
   Bind(start_delete_combo, KeyCode_D);
+  Bind(start_cut_combo, KeyCode_C);
 }
 
 void
@@ -553,6 +576,19 @@ set_up_delete_inner_combos(Mapping *mapping) {
   Bind(delete_inner_word_to_normal_mode, KeyCode_W);
 }
 
+void
+set_up_cut_combos(Mapping *mapping) {
+  MappingScope();
+  SelectMapping(mapping);
+
+  SelectMap(mapid_cut);
+  ParentMap(mapid_shared);
+
+  Bind(cut_line_to_insert_mode, KeyCode_C);
+  Bind(cut_word_to_insert_mode, KeyCode_W);
+  // Bind(start_cut_inner_combo, KeyCode_I);
+}
+
 // TODO(mdelgado): I'd like to avoid updating this function,
 //  I don't think this system gives me that ability to define
 //  this in my 4coder_custom.cpp file
@@ -583,6 +619,9 @@ custom_layer_init(Application_Links *app){
   mapid_delete = vars_save_string_lit("mapid_delete");
   mapid_delete_inner = vars_save_string_lit("mapid_delete_inner");
 
+  mapid_cut = vars_save_string_lit("mapid_cut");
+  // mapid_cut_inner = vars_save_string_lit("mapid_cut_inner");
+
 #if OS_MAC
     setup_mac_mapping(&framework_mapping, global_map_id, file_map_id, code_map_id);
 #else
@@ -600,6 +639,9 @@ custom_layer_init(Application_Links *app){
   set_up_delete_combos(&framework_mapping); 
   set_up_delete_inner_combos(&framework_mapping); 
 
+  set_up_cut_combos(&framework_mapping);
+
+  // NOTE(mdelgado): Mapping what's left outside of vim bindings
   MappingScope();
   SelectMapping(&framework_mapping);
 

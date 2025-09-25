@@ -238,7 +238,7 @@ CUSTOM_COMMAND_SIG(start_cut_inner_combo) {
 CUSTOM_COMMAND_SIG(delete_to_end_of_line) {
   set_mark(app);
   seek_end_of_line(app);
-  copy(app);
+  managed_copy(app);
   delete_range(app);
 }
 
@@ -375,6 +375,7 @@ CUSTOM_COMMAND_SIG(change_range_case) {
 }
 
 CUSTOM_COMMAND_SIG(visual_delete_range) {
+  // TODO(mdelgado): Figure out how I can tell if we're in line mode
   View_ID view = get_active_view(app, 0);
   i64 pos = view_get_cursor_pos(app, view);
   i64 mark = view_get_mark_pos(app, view);
@@ -383,6 +384,7 @@ CUSTOM_COMMAND_SIG(visual_delete_range) {
   }
 
   move_right(app);
+  managed_copy(app);
   delete_range(app);
   enter_normal_mode(app);
 }
@@ -398,6 +400,9 @@ CUSTOM_COMMAND_SIG(delete_line_to_normal_mode) {
 }
 
 CUSTOM_COMMAND_SIG(delete_word_to_normal_mode) {
+  // TODO(mdelgado): This needs to copy the text. I'll have to most
+  //  likely re-implement delete_alpha_numeric_broundry
+
   // TODO(mdelgado): This doesn't work correctly with whitespace chars
   delete_alpha_numeric_boundary(app);
   enter_normal_mode(app);
@@ -405,6 +410,7 @@ CUSTOM_COMMAND_SIG(delete_word_to_normal_mode) {
 
 CUSTOM_COMMAND_SIG(delete_inner_word_to_normal_mode) {
   if (select_inner_word(app)) {
+    managed_copy(app);
     delete_range(app);
   }
 
@@ -417,6 +423,9 @@ CUSTOM_COMMAND_SIG(cut_line_to_insert_mode) {
 }
 
 CUSTOM_COMMAND_SIG(cut_word_to_insert_mode) {
+  // TODO(mdelgado): This needs to copy the text. I'll have to most
+  //  likely re-implement delete_alpha_numeric_broundry
+
   // TODO(mdelgado): This doesn't work correctly with whitespace chars
   delete_alpha_numeric_boundary(app);
   enter_insert_mode(app);
@@ -424,6 +433,7 @@ CUSTOM_COMMAND_SIG(cut_word_to_insert_mode) {
 
 CUSTOM_COMMAND_SIG(cut_inner_word_to_insert_mode) {
   if (select_inner_word(app)) {
+    managed_copy(app);
     delete_range(app);
   }
 
@@ -625,8 +635,8 @@ set_up_visual_line_mode_mappings(Mapping *mapping) {
   Bind(visual_line_move_up, KeyCode_K);
   Bind(goto_end_of_file, KeyCode_G, KeyCode_Shift);
   Bind(change_range_case, KeyCode_Tick, KeyCode_Shift);
-  Bind(visual_delete_range, KeyCode_D);
-  Bind(visual_delete_range, KeyCode_X);
+  Bind(delete_line_to_normal_mode, KeyCode_D);
+  Bind(delete_line_to_normal_mode, KeyCode_X);
   Bind(visual_edit_range, KeyCode_C);
   Bind(visual_edit_range, KeyCode_S);
 }

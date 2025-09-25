@@ -27,6 +27,8 @@ String_ID mapid_delete_inner;
 String_ID mapid_cut;
 String_ID mapid_cut_inner;
 
+static b32 copied_entire_line = false;
+
 // NOTE(mdelgado): Helper Functions
 void
 set_current_mapid(Application_Links *app, Command_Map_ID mapid) {
@@ -116,6 +118,56 @@ select_inner_word(Application_Links *app) {
   return true;
 }
 
+void
+managed_copy(Application_Links *app, b32 line_copied) {
+  copied_entire_line = line_copied;
+  copy(app);
+}
+
+void
+managed_copy(Application_Links *app) {
+  managed_copy(app, false);
+}
+
+void
+cut_line(Application_Links *app) {
+  seek_beginning_of_line(app);
+  set_mark(app);
+  seek_end_of_line(app);
+  managed_copy(app, true);
+  delete_line(app);
+}
+
+void
+create_new_line_below(Application_Links *app) {
+  seek_end_of_line(app);
+  Scratch_Block scratch(app);
+  String_Const_u8 newLine = push_stringf(scratch, "\n");
+  write_string(app, newLine);
+}
+
+void
+create_new_line_above(Application_Links *app) {
+  seek_beginning_of_line(app);
+  Scratch_Block scratch(app);
+  String_Const_u8 newLine = push_stringf(scratch, "\n");
+  write_string(app, newLine);
+  move_up(app);
+}
+
+void
+managed_paste(Application_Links *app, b32 above) {
+  if (copied_entire_line) {
+    if (above) {
+      create_new_line_above(app);
+    } else {
+      create_new_line_below(app);
+    }
+  }
+
+  paste(app);
+}
+
 // NOTE(mdelgado): Switch Modes
 CUSTOM_COMMAND_SIG(enter_normal_mode) {
   set_current_mapid(app, mapid_normal);
@@ -186,6 +238,7 @@ CUSTOM_COMMAND_SIG(start_cut_inner_combo) {
 CUSTOM_COMMAND_SIG(delete_to_end_of_line) {
   set_mark(app);
   seek_end_of_line(app);
+  copy(app);
   delete_range(app);
 }
 
@@ -278,19 +331,12 @@ CUSTOM_COMMAND_SIG(insert_at_beginning_of_line) {
 }
 
 CUSTOM_COMMAND_SIG(create_new_line_below_and_insert) {
-  seek_end_of_line(app);
-  Scratch_Block scratch(app);
-  String_Const_u8 newLine = push_stringf(scratch, "\n");
-  write_string(app, newLine);
+  create_new_line_below(app);
   enter_insert_mode(app);
 }
 
 CUSTOM_COMMAND_SIG(create_new_line_above_and_insert) {
-  seek_beginning_of_line(app);
-  Scratch_Block scratch(app);
-  String_Const_u8 newLine = push_stringf(scratch, "\n");
-  write_string(app, newLine);
-  move_up(app);
+  create_new_line_above(app);
   enter_insert_mode(app);
 }
 
@@ -347,7 +393,7 @@ CUSTOM_COMMAND_SIG(visual_edit_range) {
 }
 
 CUSTOM_COMMAND_SIG(delete_line_to_normal_mode) {
-  delete_line(app);
+  cut_line(app);
   enter_normal_mode(app);
 }
 
@@ -366,7 +412,7 @@ CUSTOM_COMMAND_SIG(delete_inner_word_to_normal_mode) {
 }
 
 CUSTOM_COMMAND_SIG(cut_line_to_insert_mode) {
-  delete_line(app);
+  cut_line(app);
   enter_insert_mode(app);
 }
 
@@ -382,6 +428,28 @@ CUSTOM_COMMAND_SIG(cut_inner_word_to_insert_mode) {
   }
 
   enter_insert_mode(app);
+}
+
+CUSTOM_COMMAND_SIG(paste_after_cursor) {
+  View_ID view = get_active_view(app, 0);
+  i64 cursor = view_get_cursor_pos(app, view);
+  Range_i64 range = {};
+  range.start = cursor;
+  range.end = cursor + 1;
+
+  Buffer_ID buffer = view_get_buffer(app, view, 0);
+  String_Const_u8 underCursor = get_chars_in_range(app, buffer, range);
+
+  u8 curChar = underCursor.size ? underCursor.str[0] : 0;
+  if (curChar != '\n' && curChar != 0) {
+    move_right(app);
+  }
+
+  managed_paste(app, false);
+}
+
+CUSTOM_COMMAND_SIG(paste_before_cursor) {
+  managed_paste(app, true);
 }
 
 CUSTOM_COMMAND_SIG(noop) { }
@@ -454,6 +522,8 @@ set_up_normal_mode_mappings(Mapping *mapping) {
   Bind(reverse_search, KeyCode_ForwardSlash, KeyCode_Shift);
   Bind(delete_char, KeyCode_X);
   Bind(delete_to_end_of_line, KeyCode_D, KeyCode_Shift);
+  Bind(paste_after_cursor, KeyCode_P);
+  Bind(paste_before_cursor, KeyCode_P, KeyCode_Shift);
   Bind(edit_to_end_of_line, KeyCode_C, KeyCode_Shift);
   Bind(edit_entire_line, KeyCode_S, KeyCode_Shift);
   Bind(move_left_whitespace_boundary, KeyCode_B);

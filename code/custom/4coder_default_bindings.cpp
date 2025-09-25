@@ -168,6 +168,38 @@ managed_paste(Application_Links *app, b32 above) {
   paste(app);
 }
 
+i64
+seek_to_char_on_line(Application_Links *app, u8 seekChar) {
+  View_ID view = get_active_view(app, 0);
+  i64 cursor = view_get_cursor_pos(app, view);
+  i64 mark = view_get_mark_pos(app, view);
+
+  i64 result = 0;
+  // TODO(mdelgado): I need to reset mark for visual mode
+  set_mark(app);
+  seek_end_of_line(app);
+  i64 eolPos = view_get_cursor_pos(app, view);
+  cursor_mark_swap(app);
+  Character_Predicate predicate = character_predicate_from_character(seekChar);
+
+  Buffer_ID buffer = view_get_buffer(app, view, 0);
+  // TODO(mdelgado): See if I have a reason to scan backward
+  // NOTE(mdelgado): I have no idea what side means here...
+  i64 newPos = boundary_predicate(app, buffer, Side_Min, Scan_Forward, cursor, &predicate);
+  if (newPos > eolPos) {
+    return 0;
+  }
+
+  view_set_cursor_and_preferred_x(app, view, seek_pos(cursor));
+  set_mark(app);
+  if (cursor != mark) {
+    view_set_cursor_and_preferred_x(app, view, seek_pos(mark));
+    cursor_mark_swap(app);
+  } 
+
+  return newPos;
+}
+
 // NOTE(mdelgado): Switch Modes
 CUSTOM_COMMAND_SIG(enter_normal_mode) {
   set_current_mapid(app, mapid_normal);
@@ -392,6 +424,14 @@ CUSTOM_COMMAND_SIG(visual_delete_range) {
 CUSTOM_COMMAND_SIG(visual_edit_range) {
   visual_delete_range(app);
   enter_insert_mode(app);
+}
+
+CUSTOM_COMMAND_SIG(visual_to_test) {
+  View_ID view = get_active_view(app, 0);
+  i64 nextPos = seek_to_char_on_line(app, 'a');
+  if (nextPos) {
+    view_set_cursor_and_preferred_x(app, view, seek_pos(nextPos)); 
+  }
 }
 
 CUSTOM_COMMAND_SIG(delete_line_to_normal_mode) {
@@ -621,6 +661,7 @@ set_up_visual_mode_mappings(Mapping *mapping) {
   Bind(visual_delete_range, KeyCode_X);
   Bind(visual_edit_range, KeyCode_C);
   Bind(visual_edit_range, KeyCode_S);
+  Bind(visual_to_test, KeyCode_Minus);
 }
 
 void

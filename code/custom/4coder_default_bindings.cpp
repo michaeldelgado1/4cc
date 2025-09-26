@@ -27,6 +27,11 @@ String_ID mapid_delete_inner;
 String_ID mapid_cut;
 String_ID mapid_cut_inner;
 
+String_ID mapid_normal_goto_before_char;
+String_ID mapid_normal_goto_after_char;
+String_ID mapid_visual_goto_before_char;
+String_ID mapid_visual_goto_after_char;
+
 static b32 copied_entire_line = false;
 
 // NOTE(mdelgado): Helper Functions
@@ -285,6 +290,14 @@ CUSTOM_COMMAND_SIG(start_cut_inner_combo) {
   set_current_mapid(app, mapid_cut_inner);
 }
 
+CUSTOM_COMMAND_SIG(start_visual_goto_before_char) {
+  set_current_mapid(app, mapid_visual_goto_before_char);
+}
+
+CUSTOM_COMMAND_SIG(start_visual_goto_after_char) {
+  set_current_mapid(app, mapid_visual_goto_after_char);
+}
+
 // NOTE(mdelgado): Editing
 CUSTOM_COMMAND_SIG(delete_to_end_of_line) {
   set_mark(app);
@@ -522,6 +535,26 @@ CUSTOM_COMMAND_SIG(paste_before_cursor) {
   managed_paste(app, true);
 }
 
+CUSTOM_COMMAND_SIG(visual_goto_before_char) {
+  User_Input in = get_current_input(app);
+  String_Const_u8 insert = to_writable(&in);
+  if (insert.str != 0 && insert.size > 0){
+    goto_char_on_line(app, insert.str[0], Side_Min);
+  }
+
+  enter_visual_mode(app);
+}
+
+CUSTOM_COMMAND_SIG(visual_goto_after_char) {
+  User_Input in = get_current_input(app);
+  String_Const_u8 insert = to_writable(&in);
+  if (insert.str != 0 && insert.size > 0){
+    goto_char_on_line(app, insert.str[0], Side_Max);
+  }
+
+  enter_visual_mode(app);
+}
+
 CUSTOM_COMMAND_SIG(noop) { }
 
 // NOTE(mdelgado): Hooks
@@ -661,7 +694,6 @@ set_up_visual_mode_mappings(Mapping *mapping) {
   SelectMap(mapid_visual);
   ParentMap(mapid_shared);
 
-  BindTextInput(visual_to_test);
   Bind(move_down, KeyCode_J);
   Bind(move_up, KeyCode_K);
   Bind(move_left, KeyCode_H);
@@ -682,7 +714,8 @@ set_up_visual_mode_mappings(Mapping *mapping) {
   Bind(visual_delete_range, KeyCode_X);
   Bind(visual_edit_range, KeyCode_C);
   Bind(visual_edit_range, KeyCode_S);
-  // Bind(visual_to_test, KeyCode_Minus);
+  Bind(start_visual_goto_before_char, KeyCode_T);
+  Bind(start_visual_goto_after_char, KeyCode_F);
 }
 
 void
@@ -751,6 +784,28 @@ set_up_cut_inner_combos(Mapping *mapping) {
   Bind(cut_inner_word_to_insert_mode, KeyCode_W);
 }
 
+void
+set_up_visual_goto_before_char(Mapping *mapping) {
+  MappingScope();
+  SelectMapping(mapping);
+
+  SelectMap(mapid_visual_goto_before_char);
+  ParentMap(mapid_shared);
+
+  BindTextInput(visual_goto_before_char);
+}
+
+void
+set_up_visual_goto_after_char(Mapping *mapping) {
+  MappingScope();
+  SelectMapping(mapping);
+
+  SelectMap(mapid_visual_goto_after_char);
+  ParentMap(mapid_shared);
+
+  BindTextInput(visual_goto_after_char);
+}
+
 // TODO(mdelgado): I'd like to avoid updating this function,
 //  I don't think this system gives me that ability to define
 //  this in my 4coder_custom.cpp file
@@ -784,6 +839,11 @@ custom_layer_init(Application_Links *app){
   mapid_cut = vars_save_string_lit("mapid_cut");
   mapid_cut_inner = vars_save_string_lit("mapid_cut_inner");
 
+  mapid_normal_goto_before_char = vars_save_string_lit("mapid_normal_goto_before_char");
+  mapid_normal_goto_after_char = vars_save_string_lit("mapid_normal_goto_after_char");
+  mapid_visual_goto_before_char = vars_save_string_lit("mapid_visual_goto_before_char");
+  mapid_visual_goto_after_char = vars_save_string_lit("mapid_visual_goto_after_char");
+
 #if OS_MAC
     setup_mac_mapping(&framework_mapping, global_map_id, file_map_id, code_map_id);
 #else
@@ -803,6 +863,9 @@ custom_layer_init(Application_Links *app){
 
   set_up_cut_combos(&framework_mapping);
   set_up_cut_inner_combos(&framework_mapping); 
+
+  set_up_visual_goto_after_char(&framework_mapping);
+  set_up_visual_goto_before_char(&framework_mapping);
 
   // NOTE(mdelgado): Mapping what's left outside of vim bindings
   MappingScope();

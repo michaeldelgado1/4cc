@@ -169,7 +169,7 @@ managed_paste(Application_Links *app, b32 above) {
 }
 
 i64
-seek_to_char_on_line(Application_Links *app, u8 seekChar) {
+seek_to_char_on_line(Application_Links *app, u8 seek_char, Side before_or_after_char) {
   View_ID view = get_active_view(app, 0);
   i64 cursor = view_get_cursor_pos(app, view);
   i64 mark = view_get_mark_pos(app, view);
@@ -180,14 +180,14 @@ seek_to_char_on_line(Application_Links *app, u8 seekChar) {
   seek_end_of_line(app);
   i64 eolPos = view_get_cursor_pos(app, view);
   cursor_mark_swap(app);
-  Character_Predicate predicate = character_predicate_from_character(seekChar);
+  Character_Predicate predicate = character_predicate_from_character(seek_char);
 
   Buffer_ID buffer = view_get_buffer(app, view, 0);
   // TODO(mdelgado): See if I have a reason to scan backward
-  // NOTE(mdelgado): I have no idea what side means here...
-  i64 newPos = boundary_predicate(app, buffer, Side_Min, Scan_Forward, cursor, &predicate);
-  if (newPos > eolPos) {
-    return 0;
+  // TODO(mdelgado): Fix the bug that let's the cursor go to the char under the cursor
+  i64 newPos = boundary_predicate(app, buffer, before_or_after_char, Scan_Forward, cursor, &predicate);
+  if (newPos >= eolPos) {
+    newPos = 0;
   }
 
   view_set_cursor_and_preferred_x(app, view, seek_pos(cursor));
@@ -198,6 +198,25 @@ seek_to_char_on_line(Application_Links *app, u8 seekChar) {
   } 
 
   return newPos;
+}
+
+// NOTE(mdelgado): Side_Min = before Side_Max = after
+void
+goto_char_on_line(Application_Links *app, u8 seek_char, Side before_or_after_char) {
+  View_ID view = get_active_view(app, 0);
+  i64 nextPos = 0;
+  switch (seek_char){
+    case '\n': case '\t': case 0:
+      break;
+    default:
+      nextPos = seek_to_char_on_line(app, seek_char, before_or_after_char);
+      if (nextPos) {
+        view_set_cursor_and_preferred_x(app, view, seek_pos(nextPos));
+      }
+  }
+  if (nextPos) {
+    view_set_cursor_and_preferred_x(app, view, seek_pos(nextPos));
+  }
 }
 
 // NOTE(mdelgado): Switch Modes
@@ -427,11 +446,12 @@ CUSTOM_COMMAND_SIG(visual_edit_range) {
 }
 
 CUSTOM_COMMAND_SIG(visual_to_test) {
-  View_ID view = get_active_view(app, 0);
-  i64 nextPos = seek_to_char_on_line(app, 'a');
-  if (nextPos) {
-    view_set_cursor_and_preferred_x(app, view, seek_pos(nextPos)); 
+  User_Input in = get_current_input(app);
+  String_Const_u8 insert = to_writable(&in);
+  if (insert.str != 0 && insert.size > 0){
+    goto_char_on_line(app, insert.str[0], Side_Max);
   }
+
 }
 
 CUSTOM_COMMAND_SIG(delete_line_to_normal_mode) {
@@ -641,6 +661,7 @@ set_up_visual_mode_mappings(Mapping *mapping) {
   SelectMap(mapid_visual);
   ParentMap(mapid_shared);
 
+  BindTextInput(visual_to_test);
   Bind(move_down, KeyCode_J);
   Bind(move_up, KeyCode_K);
   Bind(move_left, KeyCode_H);
@@ -661,7 +682,7 @@ set_up_visual_mode_mappings(Mapping *mapping) {
   Bind(visual_delete_range, KeyCode_X);
   Bind(visual_edit_range, KeyCode_C);
   Bind(visual_edit_range, KeyCode_S);
-  Bind(visual_to_test, KeyCode_Minus);
+  // Bind(visual_to_test, KeyCode_Minus);
 }
 
 void

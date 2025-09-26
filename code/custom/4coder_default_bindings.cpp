@@ -33,6 +33,8 @@ String_ID mapid_visual_goto_before_char;
 String_ID mapid_visual_goto_after_char;
 String_ID mapid_delete_goto_before_char;
 String_ID mapid_delete_goto_after_char;
+String_ID mapid_cut_goto_before_char;
+String_ID mapid_cut_goto_after_char;
 
 static b32 copied_entire_line = false;
 
@@ -317,6 +319,14 @@ CUSTOM_COMMAND_SIG(start_delete_goto_before_char) {
 
 CUSTOM_COMMAND_SIG(start_delete_goto_after_char) {
   set_current_mapid(app, mapid_delete_goto_after_char);
+}
+
+CUSTOM_COMMAND_SIG(start_cut_goto_before_char) {
+  set_current_mapid(app, mapid_cut_goto_before_char);
+}
+
+CUSTOM_COMMAND_SIG(start_cut_goto_after_char) {
+  set_current_mapid(app, mapid_cut_goto_after_char);
 }
 
 // NOTE(mdelgado): Editing
@@ -608,6 +618,26 @@ CUSTOM_COMMAND_SIG(delete_goto_after_char) {
   visual_delete_range(app);
 }
 
+CUSTOM_COMMAND_SIG(cut_goto_before_char) {
+  User_Input in = get_current_input(app);
+  String_Const_u8 insert = to_writable(&in);
+  if (insert.str != 0 && insert.size > 0){
+    goto_char_on_line(app, insert.str[0], true);
+  }
+
+  visual_edit_range(app);
+}
+
+CUSTOM_COMMAND_SIG(cut_goto_after_char) {
+  User_Input in = get_current_input(app);
+  String_Const_u8 insert = to_writable(&in);
+  if (insert.str != 0 && insert.size > 0){
+    goto_char_on_line(app, insert.str[0], false);
+  }
+
+  visual_edit_range(app);
+}
+
 CUSTOM_COMMAND_SIG(noop) { }
 
 // NOTE(mdelgado): Hooks
@@ -828,6 +858,8 @@ set_up_cut_combos(Mapping *mapping) {
   Bind(cut_line_to_insert_mode, KeyCode_C);
   Bind(cut_word_to_insert_mode, KeyCode_W);
   Bind(start_cut_inner_combo, KeyCode_I);
+  Bind(start_cut_goto_before_char, KeyCode_T);
+  Bind(start_cut_goto_after_char, KeyCode_F);
 }
 
 void
@@ -872,6 +904,28 @@ set_up_delete_goto_before_char(Mapping *mapping) {
   ParentMap(mapid_shared);
 
   BindTextInput(delete_goto_before_char);
+}
+
+void
+set_up_cut_goto_after_char(Mapping *mapping) {
+  MappingScope();
+  SelectMapping(mapping);
+
+  SelectMap(mapid_cut_goto_after_char);
+  ParentMap(mapid_shared);
+
+  BindTextInput(cut_goto_after_char);
+}
+
+void
+set_up_cut_goto_before_char(Mapping *mapping) {
+  MappingScope();
+  SelectMapping(mapping);
+
+  SelectMap(mapid_cut_goto_before_char);
+  ParentMap(mapid_shared);
+
+  BindTextInput(cut_goto_before_char);
 }
 
 void
@@ -946,6 +1000,8 @@ custom_layer_init(Application_Links *app){
   mapid_visual_goto_after_char = vars_save_string_lit("mapid_visual_goto_after_char");
   mapid_delete_goto_before_char = vars_save_string_lit("mapid_delete_goto_before_char");
   mapid_delete_goto_after_char = vars_save_string_lit("mapid_delete_goto_after_char");
+  mapid_cut_goto_before_char = vars_save_string_lit("mapid_cut_goto_before_char");
+  mapid_cut_goto_after_char = vars_save_string_lit("mapid_cut_goto_after_char");
 
 #if OS_MAC
     setup_mac_mapping(&framework_mapping, global_map_id, file_map_id, code_map_id);
@@ -975,6 +1031,9 @@ custom_layer_init(Application_Links *app){
 
   set_up_delete_goto_after_char(&framework_mapping);
   set_up_delete_goto_before_char(&framework_mapping);
+
+  set_up_cut_goto_after_char(&framework_mapping);
+  set_up_cut_goto_before_char(&framework_mapping);
 
   // NOTE(mdelgado): Mapping what's left outside of vim bindings
   MappingScope();

@@ -301,6 +301,14 @@ CUSTOM_COMMAND_SIG(start_visual_goto_after_char) {
   set_current_mapid(app, mapid_visual_goto_after_char);
 }
 
+CUSTOM_COMMAND_SIG(start_normal_goto_before_char) {
+  set_current_mapid(app, mapid_normal_goto_before_char);
+}
+
+CUSTOM_COMMAND_SIG(start_normal_goto_after_char) {
+  set_current_mapid(app, mapid_normal_goto_after_char);
+}
+
 // NOTE(mdelgado): Editing
 CUSTOM_COMMAND_SIG(delete_to_end_of_line) {
   set_mark(app);
@@ -461,15 +469,6 @@ CUSTOM_COMMAND_SIG(visual_edit_range) {
   enter_insert_mode(app);
 }
 
-CUSTOM_COMMAND_SIG(visual_to_test) {
-  User_Input in = get_current_input(app);
-  String_Const_u8 insert = to_writable(&in);
-  if (insert.str != 0 && insert.size > 0){
-    goto_char_on_line(app, insert.str[0], Side_Max);
-  }
-
-}
-
 CUSTOM_COMMAND_SIG(delete_line_to_normal_mode) {
   cut_line(app);
   enter_normal_mode(app);
@@ -556,6 +555,26 @@ CUSTOM_COMMAND_SIG(visual_goto_after_char) {
   }
 
   enter_visual_mode(app);
+}
+
+CUSTOM_COMMAND_SIG(normal_goto_after_char) {
+  User_Input in = get_current_input(app);
+  String_Const_u8 insert = to_writable(&in);
+  if (insert.str != 0 && insert.size > 0){
+    goto_char_on_line(app, insert.str[0], false);
+  }
+
+  enter_normal_mode(app);
+}
+
+CUSTOM_COMMAND_SIG(normal_goto_before_char) {
+  User_Input in = get_current_input(app);
+  String_Const_u8 insert = to_writable(&in);
+  if (insert.str != 0 && insert.size > 0){
+    goto_char_on_line(app, insert.str[0], true);
+  }
+
+  enter_normal_mode(app);
 }
 
 CUSTOM_COMMAND_SIG(noop) { }
@@ -653,6 +672,8 @@ set_up_normal_mode_mappings(Mapping *mapping) {
   Bind(change_range_case, KeyCode_Tick, KeyCode_Shift);
   Bind(start_delete_combo, KeyCode_D);
   Bind(start_cut_combo, KeyCode_C);
+  Bind(start_normal_goto_before_char, KeyCode_T);
+  Bind(start_normal_goto_after_char, KeyCode_F);
 }
 
 void
@@ -809,6 +830,28 @@ set_up_visual_goto_after_char(Mapping *mapping) {
   BindTextInput(visual_goto_after_char);
 }
 
+void
+set_up_normal_goto_before_char(Mapping *mapping) {
+  MappingScope();
+  SelectMapping(mapping);
+
+  SelectMap(mapid_normal_goto_before_char);
+  ParentMap(mapid_shared);
+
+  BindTextInput(normal_goto_before_char);
+}
+
+void
+set_up_normal_goto_after_char(Mapping *mapping) {
+  MappingScope();
+  SelectMapping(mapping);
+
+  SelectMap(mapid_normal_goto_after_char);
+  ParentMap(mapid_shared);
+
+  BindTextInput(normal_goto_after_char);
+}
+
 // TODO(mdelgado): I'd like to avoid updating this function,
 //  I don't think this system gives me that ability to define
 //  this in my 4coder_custom.cpp file
@@ -869,6 +912,9 @@ custom_layer_init(Application_Links *app){
 
   set_up_visual_goto_after_char(&framework_mapping);
   set_up_visual_goto_before_char(&framework_mapping);
+
+  set_up_normal_goto_after_char(&framework_mapping);
+  set_up_normal_goto_before_char(&framework_mapping);
 
   // NOTE(mdelgado): Mapping what's left outside of vim bindings
   MappingScope();

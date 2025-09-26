@@ -174,7 +174,7 @@ managed_paste(Application_Links *app, b32 above) {
 }
 
 i64
-seek_to_char_on_line(Application_Links *app, u8 seek_char, Side before_or_after_char) {
+seek_to_char_on_line(Application_Links *app, u8 seek_char, b32 before) {
   View_ID view = get_active_view(app, 0);
   i64 cursor = view_get_cursor_pos(app, view);
   i64 mark = view_get_mark_pos(app, view);
@@ -190,11 +190,14 @@ seek_to_char_on_line(Application_Links *app, u8 seek_char, Side before_or_after_
   Buffer_ID buffer = view_get_buffer(app, view, 0);
   // TODO(mdelgado): See if I have a reason to scan backward
   // TODO(mdelgado): Fix the bug that let's the cursor go to the char under the cursor
-  i64 newPos = boundary_predicate(app, buffer, before_or_after_char, Scan_Forward, cursor, &predicate);
+  i64 newPos = boundary_predicate(app, buffer, Side_Min, Scan_Forward, cursor, &predicate);
   if (newPos >= eolPos) {
     newPos = 0;
   }
 
+  if (before) {
+    newPos--;
+  }
   view_set_cursor_and_preferred_x(app, view, seek_pos(cursor));
   set_mark(app);
   if (cursor != mark) {
@@ -207,14 +210,14 @@ seek_to_char_on_line(Application_Links *app, u8 seek_char, Side before_or_after_
 
 // NOTE(mdelgado): Side_Min = before Side_Max = after
 void
-goto_char_on_line(Application_Links *app, u8 seek_char, Side before_or_after_char) {
+goto_char_on_line(Application_Links *app, u8 seek_char, b32 before) {
   View_ID view = get_active_view(app, 0);
   i64 nextPos = 0;
   switch (seek_char){
     case '\n': case '\t': case 0:
       break;
     default:
-      nextPos = seek_to_char_on_line(app, seek_char, before_or_after_char);
+      nextPos = seek_to_char_on_line(app, seek_char, before);
       if (nextPos) {
         view_set_cursor_and_preferred_x(app, view, seek_pos(nextPos));
       }
@@ -539,7 +542,7 @@ CUSTOM_COMMAND_SIG(visual_goto_before_char) {
   User_Input in = get_current_input(app);
   String_Const_u8 insert = to_writable(&in);
   if (insert.str != 0 && insert.size > 0){
-    goto_char_on_line(app, insert.str[0], Side_Min);
+    goto_char_on_line(app, insert.str[0], true);
   }
 
   enter_visual_mode(app);
@@ -549,7 +552,7 @@ CUSTOM_COMMAND_SIG(visual_goto_after_char) {
   User_Input in = get_current_input(app);
   String_Const_u8 insert = to_writable(&in);
   if (insert.str != 0 && insert.size > 0){
-    goto_char_on_line(app, insert.str[0], Side_Max);
+    goto_char_on_line(app, insert.str[0], false);
   }
 
   enter_visual_mode(app);

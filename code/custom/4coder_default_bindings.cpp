@@ -471,6 +471,26 @@ CUSTOM_COMMAND_SIG(change_range_case) {
   enter_normal_mode(app);
 }
 
+CUSTOM_COMMAND_SIG(move_right_end_word) {
+  move_right(app);
+  // View_ID view = get_active_view(app, 0);
+  // i64 cursor = view_get_cursor_pos(app, view);
+  u8 underCur = get_char_under_cursor(app);
+  if (underCur == '\n') {
+    move_left(app);
+    return;
+  }
+
+
+  move_right_whitespace_boundary(app);
+  move_left(app);
+}
+
+CUSTOM_COMMAND_SIG(move_right_beginning_word) {
+  move_right_whitespace_boundary(app);
+  move_right(app);
+}
+
 CUSTOM_COMMAND_SIG(visual_delete_range) {
   // TODO(mdelgado): Figure out how I can tell if we're in line mode
   View_ID view = get_active_view(app, 0);
@@ -717,15 +737,9 @@ set_up_normal_mode_mappings(Mapping *mapping) {
   Bind(edit_to_end_of_line, KeyCode_C, KeyCode_Shift);
   Bind(edit_entire_line, KeyCode_S, KeyCode_Shift);
   Bind(move_left_whitespace_boundary, KeyCode_B);
-  // NOTE(mdelgado): Both of these are technically wrong
-  //  The both move forward to the white space, but I'd
-  //  rather they move to the last char or first char
-  Bind(move_right_whitespace_boundary, KeyCode_W);
-  Bind(move_right_whitespace_boundary, KeyCode_E);
+  Bind(move_right_beginning_word, KeyCode_W);
+  Bind(move_right_end_word, KeyCode_E);
 
-  // TODO(mdelgado): This doesn't work. We should see
-  //  if we can figure out a way to make it work.
-  // Bind(delete_line, KeyCode_D, KeyCode_D);
   // TODO(mdelgado): Can't do gg or goto_beginning_of_file
   Bind(goto_end_of_file, KeyCode_G, KeyCode_Shift);
   // NOTE(mdelgado): Technically the ^ command, but I
@@ -790,9 +804,8 @@ set_up_visual_mode_mappings(Mapping *mapping) {
   Bind(move_left, KeyCode_H);
   Bind(move_right, KeyCode_L);
   Bind(move_left_whitespace_boundary, KeyCode_B);
-  // NOTE(mdelgado): Same as Normal Mode
-  Bind(move_right_whitespace_boundary, KeyCode_W);
-  Bind(move_right_whitespace_boundary, KeyCode_E);
+  Bind(move_right_beginning_word, KeyCode_W);
+  Bind(move_right_end_word, KeyCode_E);
 
   // NOTE(mdelgado): Same as Normal Mode
   Bind(goto_end_of_file, KeyCode_G, KeyCode_Shift);

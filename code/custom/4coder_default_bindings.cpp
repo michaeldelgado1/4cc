@@ -207,7 +207,7 @@ seek_to_char_on_line(Application_Links *app, u8 seek_char, b32 before) {
   if (cursor != mark) {
     view_set_cursor_and_preferred_x(app, view, seek_pos(mark));
     cursor_mark_swap(app);
-  } 
+  }
 
   return newPos;
 }
@@ -348,6 +348,8 @@ CUSTOM_COMMAND_SIG(edit_entire_line) {
   edit_to_end_of_line(app);
 }
 
+// TODO(mdelgado): I need to be able to move with {} but still
+//	have the cursor behave properly
 // TODO(mdelgado): These line moves work, but are kinda heavy
 CUSTOM_COMMAND_SIG(visual_line_move_up) {
   move_up(app);
@@ -445,7 +447,7 @@ CUSTOM_COMMAND_SIG(change_range_case) {
     cursor_mark_swap(app);
     move_right(app);
     cursor_mark_swap(app);
-  } 
+  }
 
   String_Const_u8 selected = get_selected_chars(app);
 
@@ -653,6 +655,7 @@ set_up_shared_mappings(Mapping *mapping) {
   MappingScope();
   SelectMapping(&framework_mapping);
 
+
   SelectMap(mapid_shared);
   // NOTE(mdelgado): This is needed for 4coder to properly start.
   BindCore(default_startup, CoreCode_Startup);
@@ -668,6 +671,7 @@ set_up_shared_mappings(Mapping *mapping) {
   Bind(move_down_to_blank_line_end, KeyCode_RightBracket, KeyCode_Control);
   Bind(move_up_to_blank_line_end, KeyCode_LeftBracket, KeyCode_Control);
   Bind(command_lister, KeyCode_X, KeyCode_Alt);
+  Bind(save, KeyCode_S, KeyCode_Control);
   /*
    * TODO(mdelgado): Make the below commented out code work. I'd like to
    *  be able to go to the next suggestion by pressing ctrl-n and previous
@@ -735,6 +739,8 @@ set_up_normal_mode_mappings(Mapping *mapping) {
   Bind(start_cut_combo, KeyCode_C);
   Bind(start_normal_goto_before_char, KeyCode_T);
   Bind(start_normal_goto_after_char, KeyCode_F);
+  Bind(move_up_to_blank_line_end, KeyCode_LeftBracket, KeyCode_Shift);
+  Bind(move_down_to_blank_line_end, KeyCode_RightBracket, KeyCode_Shift);
 }
 
 void
@@ -766,10 +772,10 @@ set_up_insert_mode_mappings(Mapping *mapping) {
   Bind(paste_and_indent, KeyCode_V, KeyCode_Control);
   Bind(search, KeyCode_F, KeyCode_Control);
   Bind(reverse_search, KeyCode_F, KeyCode_Control, KeyCode_Shift);
-  Bind(save, KeyCode_S, KeyCode_Control);
   Bind(redo, KeyCode_Y, KeyCode_Control);
   Bind(undo, KeyCode_Z, KeyCode_Control);
 }
+
 
 void
 set_up_visual_mode_mappings(Mapping *mapping) {
@@ -801,6 +807,8 @@ set_up_visual_mode_mappings(Mapping *mapping) {
   Bind(visual_edit_range, KeyCode_S);
   Bind(start_visual_goto_before_char, KeyCode_T);
   Bind(start_visual_goto_after_char, KeyCode_F);
+  Bind(move_up_to_blank_line_end, KeyCode_LeftBracket, KeyCode_Shift);
+  Bind(move_down_to_blank_line_end, KeyCode_RightBracket, KeyCode_Shift);
 }
 
 void
@@ -819,6 +827,8 @@ set_up_visual_line_mode_mappings(Mapping *mapping) {
   Bind(delete_line_to_normal_mode, KeyCode_X);
   Bind(visual_edit_range, KeyCode_C);
   Bind(visual_edit_range, KeyCode_S);
+  Bind(move_up_to_blank_line_end, KeyCode_LeftBracket, KeyCode_Shift);
+  Bind(move_down_to_blank_line_end, KeyCode_RightBracket, KeyCode_Shift);
 }
 
 void
@@ -1004,9 +1014,9 @@ custom_layer_init(Application_Links *app){
   mapid_cut_goto_after_char = vars_save_string_lit("mapid_cut_goto_after_char");
 
 #if OS_MAC
-    setup_mac_mapping(&framework_mapping, global_map_id, file_map_id, code_map_id);
+  setup_mac_mapping(&framework_mapping, global_map_id, file_map_id, code_map_id);
 #else
-    setup_default_global_mapping(&framework_mapping, global_map_id);
+  setup_default_global_mapping(&framework_mapping, global_map_id);
 #endif
   setup_essential_mapping(&framework_mapping, global_map_id, file_map_id, code_map_id);
 
@@ -1017,11 +1027,11 @@ custom_layer_init(Application_Links *app){
   set_up_visual_line_mode_mappings(&framework_mapping);
 
   // NOTE(mdelgad): Multi Key Combos
-  set_up_delete_combos(&framework_mapping); 
-  set_up_delete_inner_combos(&framework_mapping); 
+  set_up_delete_combos(&framework_mapping);
+  set_up_delete_inner_combos(&framework_mapping);
 
   set_up_cut_combos(&framework_mapping);
-  set_up_cut_inner_combos(&framework_mapping); 
+  set_up_cut_inner_combos(&framework_mapping);
 
   set_up_visual_goto_after_char(&framework_mapping);
   set_up_visual_goto_before_char(&framework_mapping);
